@@ -1,9 +1,7 @@
 package com.victoria.pombo.model.entity;
 
 import java.util.Set;
-
 import org.hibernate.validator.constraints.br.CPF;
-
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -17,20 +15,25 @@ import lombok.Data;
 @Data
 public class Usuario {
 
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-	@Column(nullable = false, unique = true)
-	private String nome;
+    @Column(nullable = false, unique = true)
+    private String nome;
 
-	@Column(nullable = false, unique = true)
-	private String email;
+    @Column(nullable = false, unique = true)
+    private String email;
 
-	@Column(nullable = false, unique = true)
-	@CPF
-	private String cpf;
+    @Column(nullable = false, unique = true)
+    @CPF
+    private String cpf;
+    
+    @Column(nullable = false)
+    private boolean isAdmin; 
 
-	@OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)
-	private Set<Pruu> pruus;
+    @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<Pruu> pruus;
+    
+    
 }
