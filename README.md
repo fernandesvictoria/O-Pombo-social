@@ -1,0 +1,1 @@
+O Pombo é uma plataforma de microblogging inspirada no Twitter, desenvolvida como parte do meu aprendizado em desenvolvimento de software. O projeto utiliza Spring Boot no backend e está focado em funcionalidades como cadastro de usuários, criação de postagens, sistema de likes, e mais.
