@@ -15,13 +15,17 @@ import com.victoria.pombo.exception.OpomboException;
 import com.victoria.pombo.model.entity.Usuario;
 import com.victoria.pombo.service.UsuarioService;
 
+
+
+
+
 @RestController
 @RequestMapping(path = "/usuario")
 public class UsuarioController {
 
 	@Autowired
 	private UsuarioService usuarioService;
-
+	
 	@GetMapping
 	public List<Usuario> pesquisarTodos(){
 		List<Usuario> usuarios = usuarioService.pesquisarTodos();
@@ -30,6 +34,7 @@ public class UsuarioController {
 	}
 	
 	@GetMapping(path = "/{id}")
+	
 	public Usuario pesquisarPorId(@PathVariable int id) {
 		return usuarioService.pesquisarPorId(id);
 	}

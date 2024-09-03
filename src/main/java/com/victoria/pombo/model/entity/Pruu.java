@@ -4,6 +4,9 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 import java.util.List;
 import org.hibernate.annotations.CreationTimestamp;
+
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -37,12 +40,11 @@ public class Pruu {
 
 	@Column(nullable = false)
 	private int quantidadeLikes;
-	
-	
-	// Relacionamento muitos-para-um com a entidade Usuario
+
 	// Cada Pruu está associado a um único usuário
 	@ManyToOne
 	@JoinColumn(name = "user_id", nullable = false)
+	@JsonBackReference
 	private Usuario usuario;
 
 	// Relacionamento muitos-para-muitos com a entidade Usuario para representar
@@ -52,8 +54,7 @@ public class Pruu {
 			joinColumns = @JoinColumn(name = "pruu_id"), // Coluna que referencia a entidade Pruu
 			inverseJoinColumns = @JoinColumn(name = "user_id") // Coluna que referencia a entidade Usuario
 	)
-	private List<Usuario> likes; // Lista de usuários que curtiram o Pruu
-
+	private List<Usuario> likes;
 
 	@Column(nullable = false)
 	private boolean bloqueado;

@@ -15,6 +15,8 @@ import jakarta.validation.constraints.Pattern;
 import lombok.Data;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 @Entity
 @Data
 @Table
@@ -44,6 +46,7 @@ public class Usuario {
 	// Relacionamento de um-para-muitos com a entidade Pruu
     // O usuário pode ter vários pruus associados a ele
 	@OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+	 @JsonManagedReference
 	private List<Pruu> pruus; // Lista de pruus enviados pelo usuário
 
 }
