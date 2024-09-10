@@ -9,33 +9,71 @@ import org.springframework.stereotype.Service;
 
 import com.victoria.pombo.exception.OpomboException;
 import com.victoria.pombo.model.entity.Pruu;
+import com.victoria.pombo.model.entity.Usuario;
 import com.victoria.pombo.model.repository.PruuRepository;
+import com.victoria.pombo.model.repository.UsuarioRepository;
 
 @Service
 public class PruuService {
 
 	@Autowired
-	private PruuRepository repository;
+	private PruuRepository pruuRepository;
+	
+	@Autowired 
+	private UsuarioRepository usuarioRepository;
 
 	public Pruu inserir(Pruu novoPruu) {
 
-		return repository.save(novoPruu);
+		return pruuRepository.save(novoPruu);
 	}
 
 	public List<Pruu> pesquisarTodos() {
-		return repository.findAll();
+		return pruuRepository.findAll();
 	}
 
 	public Optional<Pruu> pesquisarPorId(UUID id) throws OpomboException {
-		Optional<Pruu> pruu = repository.findById(id);
+		Optional<Pruu> pruu = pruuRepository.findById(id);
 		if (pruu.isPresent()) {
-            return pruu;
-        } else {
-            throw new OpomboException("Pruu  ID " + id + " não encontrado.");
-        }
-    }
+			return pruu;
+		} else {
+			throw new OpomboException("Pruu  ID " + id + " não encontrado.");
+		}
+	}
 
+	
 	public void excluir(UUID id) {
-		repository.deleteById(id);
+		pruuRepository.deleteById(id);
+	}
+
+	public Pruu curtirPruu(UUID pruuId, Integer usuarioId) throws OpomboException {
+	    Pruu pruu = pruuRepository.findById(pruuId)
+	        .orElseThrow(() -> new OpomboException("Pruu não encontrado"));
+	    
+	    Usuario usuario = usuarioRepository.findById(usuarioId)
+	            .orElseThrow(() -> new OpomboException("Usuário não encontrado"));
+	    
+	 // Verifica se o usuário já curtiu o Pruu
+        if (pruu.getLikes().contains(usuario)) {
+            throw new OpomboException("Usuário já curtiu este Pruu");
+        }
+
+	    // incrementa  contador 
+	    pruu.setQuantidadeLikes(pruu.getQuantidadeLikes() + 1);
+	    
+
+        // Adiciona o usuário à lista de curtidores
+        pruu.getLikes().add(usuario);
+        usuario.getPruusCurtidos().add(pruu);
+
+	    // e salva like
+	    return pruuRepository.save(pruu);
+	}
+	
+	public List<Pruu> findAllByUserOrderByCreatedAtDesc(Usuario usuario) {
+		return pruuRepository.findAllByUsuarioOrderByDataCriacaoDesc(usuario);
+	}
+
+	public List<Pruu> findAllOrderByCreatedAtDesc() {
+		return pruuRepository.findAllByOrderByDataCriacaoDesc();
 	}
 }

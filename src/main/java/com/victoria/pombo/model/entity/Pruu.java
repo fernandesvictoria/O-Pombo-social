@@ -13,7 +13,6 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.validation.constraints.NotBlank;
@@ -39,21 +38,15 @@ public class Pruu {
 	private LocalDateTime dataCriacao;
 
 	@Column(nullable = false)
-	private int quantidadeLikes;
-
-	// Cada Pruu está associado a um único usuário
+	private Integer quantidadeLikes = 0;
+	// Relacionamento muitos-para-um: cada Pruu é criado por um único usuário
 	@ManyToOne
 	@JoinColumn(name = "user_id", nullable = false)
 	@JsonBackReference
 	private Usuario usuario;
 
-	// Relacionamento muitos-para-muitos com a entidade Usuario para representar
-	// quem curtiu o Pruu
-	@ManyToMany
-	@JoinTable(name = "pruu_likes", // Nome da tabela de junção
-			joinColumns = @JoinColumn(name = "pruu_id"), // Coluna que referencia a entidade Pruu
-			inverseJoinColumns = @JoinColumn(name = "user_id") // Coluna que referencia a entidade Usuario
-	)
+	// Relacionamento muitos-para-muitos: vários usuários podem curtir um Pruu
+	@ManyToMany(mappedBy = "pruusCurtidos")
 	private List<Usuario> likes;
 
 	@Column(nullable = false)
