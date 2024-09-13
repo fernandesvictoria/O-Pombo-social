@@ -33,6 +33,7 @@ public class PruuController {
 
 	@Autowired
 	private PruuService pruuService;
+	@Autowired
 	private UsuarioService usuarioService;
 
 	@Operation(summary = "Listar todos os pruus", description = "Retorna uma lista de todos os pruus cadastrados no sistema.", responses = {
@@ -61,10 +62,12 @@ public class PruuController {
 		return ResponseEntity.ok().build();
 	}
 
-	@Operation(summary = "Deletar pruu por ID", description = "Remove um pruu específico pelo seu ID.")
+	@Operation(summary = "Deletar pruu por ID", description = "Remove um pruu específico pelo seu ID.", responses = {
+			@ApiResponse(responseCode = "204", description = "Pruu excluido com sucesso", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Pruu.class))) })
 	@DeleteMapping(path = "/{id}")
-	public void excluir(@PathVariable UUID id) {
+	public ResponseEntity<Void> excluir(@PathVariable UUID id) {
 		pruuService.excluir(id);
+		return ResponseEntity.noContent().build();
 	}
 
 	@Operation(summary = "Curtir um Pruu")
