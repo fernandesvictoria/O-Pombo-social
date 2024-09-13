@@ -1,6 +1,7 @@
 package com.victoria.pombo.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -48,7 +49,7 @@ public class UsuarioController {
 	public Usuario pesquisarPorId(@PathVariable int id) throws OpomboException {
 		return usuarioService.pesquisarPorId(id);
 	}
-	
+
 //	@Operation(summary = "Pesquisar usuário com filtro", 
 //			   description = "Retorna uma lista de usuários que atendem aos critérios especificados no seletor.")
 //	@PostMapping("/filtro")
@@ -58,7 +59,8 @@ public class UsuarioController {
 
 	@Operation(summary = "Inserir novo usuário", description = "Adiciona um novo usuário ao sistema.", responses = {
 			@ApiResponse(responseCode = "201", description = "Usuário criado com sucesso", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Usuario.class))),
-			@ApiResponse(responseCode = "400", description = "Erro de validação ou regra de negócio", content = @Content(mediaType = "application/json", examples = @ExampleObject(value = "{\"message\": \"Erro de validação: campo X é obrigatório\", \"status\": 400}"))) })
+			@ApiResponse(responseCode = "400", description = "Erro de validação ou regra de negócio", content = @Content(mediaType = "application/json", examples = @ExampleObject(value = "{\"message\": \"Erro de validação: campo X é obrigatório\", \"status\": 400}"))),
+			@ApiResponse(responseCode = "500", description = "Erro no servidor: CPF já existente", content = @Content(mediaType = "application/json", examples = @ExampleObject(value = "{\"message\": \"Erro: CPF já está cadastrado\", \"status\": 500}"))) })
 	@PostMapping
 	public ResponseEntity<Usuario> inserir(@Valid @RequestBody Usuario novoUsuario) {
 		try {
@@ -66,6 +68,9 @@ public class UsuarioController {
 			return new ResponseEntity(usuarioSalvo, HttpStatus.CREATED);
 		} catch (OpomboException e) {
 			return new ResponseEntity(e.getMessage(), HttpStatus.BAD_REQUEST);
+		} catch (DataIntegrityViolationException e) { // Exceção para CPF duplicado
+			return new ResponseEntity("{\"message\": \"Erro: CPF já está cadastrado\", \"status\": 500}",
+					HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
 
@@ -76,11 +81,10 @@ public class UsuarioController {
 	}
 
 	@Operation(summary = "Deletar usuário por ID", description = "Remove um usuário específico pelo seu ID.", responses = {
-			@ApiResponse(responseCode = "204", description = "Usuário excluído com sucesso"), })
+			@ApiResponse(responseCode = "200", description = "Usuário excluído com sucesso"), })
 	@DeleteMapping(path = "/{id}")
 	public void excluir(@PathVariable int id) {
 		usuarioService.excluir(id);
 	}
-	
-	
+
 }

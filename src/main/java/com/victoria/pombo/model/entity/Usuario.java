@@ -16,7 +16,6 @@ import lombok.Data;
 import java.util.List;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 
-
 @Entity
 @Data
 @Table
@@ -36,8 +35,8 @@ public class Usuario {
 	private String email;
 
 	@NotBlank(message = "CPF é necessário")
-	@Pattern(regexp = "\\d{11}")
-	@Column(unique = true)
+	@Pattern(regexp = "\\d{11}", message = "CPF deve conter exatamente 11 dígitos")
+	@Column(unique = true, nullable = false)
 	private String cpf;
 
 	@Column(nullable = false)

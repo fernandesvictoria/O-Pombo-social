@@ -53,9 +53,8 @@ public class PruuController {
 	}
 
 	@Operation(summary = "Inserir novo pruu", description = "Adiciona um novo pruu ao sistema.", responses = {
-			@ApiResponse(responseCode = "201", description = "Pruu criado com sucesso", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Pruu.class))),
+			@ApiResponse(responseCode = "200", description = "Pruu criado com sucesso", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Pruu.class))),
 			@ApiResponse(responseCode = "400", description = "Erro de validação ou regra de negócio", content = @Content(mediaType = "application/json", examples = @ExampleObject(value = "{\"message\": \"Erro de validação: campo X é obrigatório\", \"status\": 400}"))) })
-
 	@PostMapping
 	public ResponseEntity<?> inserir(@RequestBody Pruu pruu) throws OpomboException {
 		pruuService.inserir(pruu);

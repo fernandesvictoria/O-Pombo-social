@@ -48,23 +48,27 @@ public class PruuService {
 	}
 
 	public Pruu curtirPruu(UUID pruuId, Integer usuarioId) throws OpomboException {
-		Pruu pruu = pruuRepository.findById(pruuId).orElseThrow(() -> new OpomboException("Pruu não encontrado"));
+	    Pruu pruu = pruuRepository.findById(pruuId)
+	            .orElseThrow(() -> new OpomboException("Pruu não encontrado"));
 
-		Usuario usuario = usuarioRepository.findById(usuarioId)
-				.orElseThrow(() -> new OpomboException("Usuário não encontrado"));
+	    Usuario usuario = usuarioRepository.findById(usuarioId)
+	            .orElseThrow(() -> new OpomboException("Usuário não encontrado"));
 
-		// Verifica se o usuário já curtiu o Pruu
-		if (pruu.getLikes().contains(usuario)) {
-			pruu.setQuantidadeLikes(pruu.getQuantidadeLikes() - 1);
-		}
+	    // Verifica se o usuário já curtiu o Pruu
+	    if (pruu.getLikes().contains(usuario)) {
+	        // Se já curtiu, remove o like e decrementa o contador
+	        pruu.setQuantidadeLikes(pruu.getQuantidadeLikes() - 1);
+	        pruu.getLikes().remove(usuario);
+	    } else {
+	        // Se não curtiu, adiciona o like e incrementa o contador
+	        pruu.setQuantidadeLikes(pruu.getQuantidadeLikes() + 1);
+	        pruu.getLikes().add(usuario);
+	    }
 
-		// incrementa contador
-		pruu.setQuantidadeLikes(pruu.getQuantidadeLikes() + 1);
-		// Adiciona o usuário à lista de curtidores
-		pruu.getLikes().add(usuario);
-		// e salva like
-		return pruuRepository.save(pruu);
+	    // Salva o estado atualizado do Pruu
+	    return pruuRepository.save(pruu);
 	}
+
 
 	public List<Pruu> findAllByUserOrderByCreatedAtDesc(Usuario usuario) {
 		return pruuRepository.findAllByUsuarioOrderByDataCriacaoDesc(usuario);
