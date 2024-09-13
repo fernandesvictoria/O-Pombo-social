@@ -18,7 +18,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import com.victoria.pombo.exception.OpomboException;
 import com.victoria.pombo.model.entity.Pruu;
+import com.victoria.pombo.model.entity.Usuario;
 import com.victoria.pombo.service.PruuService;
+import com.victoria.pombo.service.UsuarioService;
+
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.Operation;
@@ -30,6 +33,7 @@ public class PruuController {
 
 	@Autowired
 	private PruuService pruuService;
+	private UsuarioService usuarioService;
 
 	@Operation(summary = "Listar todos os pruus", description = "Retorna uma lista de todos os pruus cadastrados no sistema.", responses = {
 			@ApiResponse(responseCode = "200", description = "Lista de pruus retornada com sucesso") })
@@ -53,8 +57,9 @@ public class PruuController {
 			@ApiResponse(responseCode = "400", description = "Erro de validação ou regra de negócio", content = @Content(mediaType = "application/json", examples = @ExampleObject(value = "{\"message\": \"Erro de validação: campo X é obrigatório\", \"status\": 400}"))) })
 
 	@PostMapping
-	public Pruu inserir(@RequestBody Pruu novoPruu) {
-		return pruuService.inserir(novoPruu);
+	public ResponseEntity<?> inserir(@RequestBody Pruu pruu) throws OpomboException {
+		pruuService.inserir(pruu);
+		return ResponseEntity.ok().build();
 	}
 
 	@Operation(summary = "Deletar pruu por ID", description = "Remove um pruu específico pelo seu ID.")
@@ -68,7 +73,8 @@ public class PruuController {
 			@ApiResponse(responseCode = "404", description = "Pruu não encontrado"),
 			@ApiResponse(responseCode = "500", description = "Erro interno do servidor") })
 	@PostMapping("/{id}/curtir")
-	public ResponseEntity<Pruu> curtirPruu(@PathVariable UUID id,@RequestParam Integer usuarioId) throws OpomboException {
+	public ResponseEntity<Pruu> curtirPruu(@PathVariable UUID id, @RequestParam Integer usuarioId)
+			throws OpomboException {
 		Pruu pruuCurtido = pruuService.curtirPruu(id, usuarioId);
 		return ResponseEntity.ok(pruuCurtido);
 	}
@@ -81,6 +87,20 @@ public class PruuController {
 	public ResponseEntity<List<Pruu>> pesquisarTodosPruusPorOrdemDesc() {
 		List<Pruu> pruus = pruuService.findAllOrderByCreatedAtDesc();
 		return new ResponseEntity<>(pruus, HttpStatus.OK);
+	}
+
+	@Operation(summary = "Bloquear um Pruu", description = "Bloqueia um Pruu específico se o usuário for um administrador.")
+	@PostMapping("/bloquear/{id}")
+	public ResponseEntity<String> bloquearPruu(@PathVariable UUID id, @RequestBody Usuario usuario) {
+		try {
+			usuarioService.validarAdmin(usuario);
+
+			pruuService.bloquear(id);
+
+			return new ResponseEntity<>("Pruu bloqueado com sucesso.", HttpStatus.OK);
+		} catch (OpomboException e) {
+			return new ResponseEntity<>(e.getMessage(), HttpStatus.FORBIDDEN);
+		}
 	}
 
 }

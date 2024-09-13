@@ -18,13 +18,16 @@ public class PruuService {
 
 	@Autowired
 	private PruuRepository pruuRepository;
-	
-	@Autowired 
+
+	@Autowired
 	private UsuarioRepository usuarioRepository;
 
-	public Pruu inserir(Pruu novoPruu) {
+	public void inserir(Pruu pruu) throws OpomboException {
+		Usuario usuario = usuarioRepository.findById(pruu.getUsuario().getId())
+				.orElseThrow(() -> new OpomboException("Usuário não encontrado"));
 
-		return pruuRepository.save(novoPruu);
+		pruu.setUsuario(usuario);
+		pruuRepository.save(pruu);
 	}
 
 	public List<Pruu> pesquisarTodos() {
@@ -40,35 +43,29 @@ public class PruuService {
 		}
 	}
 
-	
 	public void excluir(UUID id) {
 		pruuRepository.deleteById(id);
 	}
 
 	public Pruu curtirPruu(UUID pruuId, Integer usuarioId) throws OpomboException {
-	    Pruu pruu = pruuRepository.findById(pruuId)
-	        .orElseThrow(() -> new OpomboException("Pruu não encontrado"));
-	    
-	    Usuario usuario = usuarioRepository.findById(usuarioId)
-	            .orElseThrow(() -> new OpomboException("Usuário não encontrado"));
-	    
-	 // Verifica se o usuário já curtiu o Pruu
-        if (pruu.getLikes().contains(usuario)) {
-            throw new OpomboException("Usuário já curtiu este Pruu");
-        }
+		Pruu pruu = pruuRepository.findById(pruuId).orElseThrow(() -> new OpomboException("Pruu não encontrado"));
 
-	    // incrementa  contador 
-	    pruu.setQuantidadeLikes(pruu.getQuantidadeLikes() + 1);
-	    
+		Usuario usuario = usuarioRepository.findById(usuarioId)
+				.orElseThrow(() -> new OpomboException("Usuário não encontrado"));
 
-        // Adiciona o usuário à lista de curtidores
-        pruu.getLikes().add(usuario);
-        usuario.getPruusCurtidos().add(pruu);
+		// Verifica se o usuário já curtiu o Pruu
+		if (pruu.getLikes().contains(usuario)) {
+			pruu.setQuantidadeLikes(pruu.getQuantidadeLikes() - 1);
+		}
 
-	    // e salva like
-	    return pruuRepository.save(pruu);
+		// incrementa contador
+		pruu.setQuantidadeLikes(pruu.getQuantidadeLikes() + 1);
+		// Adiciona o usuário à lista de curtidores
+		pruu.getLikes().add(usuario);
+		// e salva like
+		return pruuRepository.save(pruu);
 	}
-	
+
 	public List<Pruu> findAllByUserOrderByCreatedAtDesc(Usuario usuario) {
 		return pruuRepository.findAllByUsuarioOrderByDataCriacaoDesc(usuario);
 	}
@@ -76,4 +73,13 @@ public class PruuService {
 	public List<Pruu> findAllOrderByCreatedAtDesc() {
 		return pruuRepository.findAllByOrderByDataCriacaoDesc();
 	}
+
+	public void bloquear(UUID id) throws OpomboException {
+		Pruu pruu = pruuRepository.findById(id).orElseThrow(() -> new OpomboException("Pruu não encontrado"));
+
+		pruu.setBloqueado(true);
+
+		pruuRepository.save(pruu);
+	}
+
 }
