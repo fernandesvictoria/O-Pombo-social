@@ -1,13 +1,10 @@
 package com.victoria.pombo.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
-
 import com.victoria.pombo.exception.OpomboException;
 import com.victoria.pombo.model.entity.Usuario;
 import com.victoria.pombo.model.repository.UsuarioRepository;
-import com.victoria.pombo.model.seletor.UsuarioSeletor;
 
 import java.util.List;
 

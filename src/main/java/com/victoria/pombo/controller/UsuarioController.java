@@ -13,13 +13,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
-
 import com.victoria.pombo.exception.OpomboException;
-import com.victoria.pombo.model.entity.Pruu;
 import com.victoria.pombo.model.entity.Usuario;
-import com.victoria.pombo.model.seletor.UsuarioSeletor;
 import com.victoria.pombo.service.UsuarioService;
-
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
@@ -62,14 +58,14 @@ public class UsuarioController {
 			@ApiResponse(responseCode = "400", description = "Erro de validação ou regra de negócio", content = @Content(mediaType = "application/json", examples = @ExampleObject(value = "{\"message\": \"Erro de validação: campo X é obrigatório\", \"status\": 400}"))),
 			@ApiResponse(responseCode = "500", description = "Erro no servidor: CPF já existente", content = @Content(mediaType = "application/json", examples = @ExampleObject(value = "{\"message\": \"Erro: CPF já está cadastrado\", \"status\": 500}"))) })
 	@PostMapping
-	public ResponseEntity<Usuario> inserir(@Valid @RequestBody Usuario novoUsuario) {
+	public ResponseEntity<?> inserir(@Valid @RequestBody Usuario novoUsuario) {
 		try {
 			Usuario usuarioSalvo = usuarioService.inserir(novoUsuario);
-			return new ResponseEntity(usuarioSalvo, HttpStatus.CREATED);
+			return new ResponseEntity<>(usuarioSalvo, HttpStatus.CREATED);
 		} catch (OpomboException e) {
-			return new ResponseEntity(e.getMessage(), HttpStatus.BAD_REQUEST);
+			return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
 		} catch (DataIntegrityViolationException e) { // Exceção para CPF duplicado
-			return new ResponseEntity("{\"message\": \"Erro: CPF já está cadastrado\", \"status\": 500}",
+			return new ResponseEntity<>("{\"message\": \"Erro: CPF já está cadastrado\", \"status\": 500}",
 					HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
