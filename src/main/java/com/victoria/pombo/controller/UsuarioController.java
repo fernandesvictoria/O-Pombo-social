@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 import com.victoria.pombo.exception.OpomboException;
 import com.victoria.pombo.model.entity.Usuario;
+import com.victoria.pombo.model.seletor.UsuarioSeletor;
 import com.victoria.pombo.service.UsuarioService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -46,13 +47,6 @@ public class UsuarioController {
 		return usuarioService.pesquisarPorId(id);
 	}
 
-//	@Operation(summary = "Pesquisar usuário com filtro", 
-//			   description = "Retorna uma lista de usuários que atendem aos critérios especificados no seletor.")
-//	@PostMapping("/filtro")
-//	public List<Usuario> pesquisarComSeletor(@RequestBody UsuarioSeletor seletor) {
-//		return usuarioService.listarComSeletor(seletor);
-//	}
-
 	@Operation(summary = "Inserir novo usuário", description = "Adiciona um novo usuário ao sistema.", responses = {
 			@ApiResponse(responseCode = "201", description = "Usuário criado com sucesso", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Usuario.class))),
 			@ApiResponse(responseCode = "400", description = "Erro de validação ou regra de negócio", content = @Content(mediaType = "application/json", examples = @ExampleObject(value = "{\"message\": \"Erro de validação: campo X é obrigatório\", \"status\": 400}"))),
@@ -80,7 +74,13 @@ public class UsuarioController {
 			@ApiResponse(responseCode = "200", description = "Usuário excluído com sucesso"), })
 	@DeleteMapping(path = "/{id}")
 	public void excluir(@PathVariable int id) {
+
 		usuarioService.excluir(id);
 	}
+
+	// @PostMapping("/filtros")
+	// public List<Usuario> listarComFiltros(@RequestBody UsuarioSeletor seletor) {
+	// return usuarioService.listarComFiltros(seletor);
+	// }
 
 }
