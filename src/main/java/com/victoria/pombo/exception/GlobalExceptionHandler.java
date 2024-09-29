@@ -22,7 +22,7 @@ public class GlobalExceptionHandler {
     
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String, String>> handleValidationExceptions(MethodArgumentNotValidException ex) {
-        Map<String, String> errors = new HashMap();
+        Map<String, String> errors = new HashMap<String, String>();
         
         // Itera sobre os erros de campo e coleta as mensagens
         ex.getBindingResult().getAllErrors().forEach((error) -> {

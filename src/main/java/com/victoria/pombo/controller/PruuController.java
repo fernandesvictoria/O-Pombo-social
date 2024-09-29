@@ -2,13 +2,11 @@ package com.victoria.pombo.controller;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.media.Content;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -19,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.victoria.pombo.exception.OpomboException;
 import com.victoria.pombo.model.entity.Pruu;
 import com.victoria.pombo.model.entity.Usuario;
+import com.victoria.pombo.model.seletor.PruuSeletor;
 import com.victoria.pombo.service.PruuService;
 import com.victoria.pombo.service.UsuarioService;
 
@@ -49,7 +48,7 @@ public class PruuController {
 	@Operation(summary = "Pesquisar pruu por ID", description = "Busca um pruu específico pelo seu ID.")
 
 	@GetMapping(path = "/{id}")
-	public Optional<Pruu> pesquisarPorId(@PathVariable UUID id) throws OpomboException {
+	public Optional<Pruu> pesquisarPorId(@PathVariable String id) throws OpomboException {
 		return pruuService.pesquisarPorId(id);
 	}
 
@@ -62,20 +61,21 @@ public class PruuController {
 		return ResponseEntity.ok().build();
 	}
 
-	@Operation(summary = "Deletar pruu por ID", description = "Remove um pruu específico pelo seu ID.", responses = {
-			@ApiResponse(responseCode = "204", description = "Pruu excluido com sucesso", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Pruu.class))) })
-	@DeleteMapping(path = "/{id}")
-	public ResponseEntity<Void> excluir(@PathVariable UUID id) {
-		pruuService.excluir(id);
-		return ResponseEntity.noContent().build();
-	}
+	// (Não exposto)
+//	@Operation(summary = "Deletar pruu por ID", description = "Remove um pruu específico pelo seu ID.", responses = {
+//			@ApiResponse(responseCode = "204", description = "Pruu excluido com sucesso", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Pruu.class))) })
+//	@DeleteMapping(path = "/{id}")
+//	public ResponseEntity<Void> excluir(@PathVariable String id) {
+//		pruuService.excluir(id);
+//		return ResponseEntity.noContent().build();
+//	}
 
 	@Operation(summary = "Curtir um Pruu")
 	@ApiResponses(value = { @ApiResponse(responseCode = "200", description = "Pruu curtido com sucesso"),
 			@ApiResponse(responseCode = "404", description = "Pruu não encontrado"),
 			@ApiResponse(responseCode = "500", description = "Erro interno do servidor") })
 	@PostMapping("/{id}/curtir")
-	public ResponseEntity<Pruu> curtirPruu(@PathVariable UUID id, @RequestParam Integer usuarioId)
+	public ResponseEntity<Pruu> curtirPruu(@PathVariable String id, @RequestParam Integer usuarioId)
 			throws OpomboException {
 		Pruu pruuCurtido = pruuService.curtirPruu(id, usuarioId);
 		return ResponseEntity.ok(pruuCurtido);
@@ -93,7 +93,7 @@ public class PruuController {
 
 	@Operation(summary = "Bloquear um Pruu", description = "Bloqueia um Pruu específico se o usuário for um administrador.")
 	@PostMapping("/bloquear/{id}")
-	public ResponseEntity<String> bloquearPruu(@PathVariable UUID id, @RequestBody Usuario usuario) {
+	public ResponseEntity<String> bloquearPruu(@PathVariable String id, @RequestBody Usuario usuario) {
 		try {
 			usuarioService.validarAdmin(usuario);
 
@@ -104,5 +104,24 @@ public class PruuController {
 			return new ResponseEntity<>(e.getMessage(), HttpStatus.FORBIDDEN);
 		}
 	}
+	@Operation(summary = "Pesquisar com filtro", description = "Retorna uma lista de pruus seguinte especificações.", responses = {
+			@ApiResponse(responseCode = "200", description = "Pruus filtrados com sucesso", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Pruu.class))),
+			@ApiResponse(responseCode = "500", description = "Erro interno do servidor", content = @Content(mediaType = "application/json", schema = @Schema(description = "Detalhes do erro interno", example = "{\"message\": \"Erro interno do servidor\", \"status\": 500}"))) })
+	@GetMapping("/filtro")
+	public ResponseEntity<List<Pruu>> pesquisarComFiltros(PruuSeletor seletor) {
+		List<Pruu> pruus;
 
+		try {
+			pruus = pruuService.pesquisarComFiltros(seletor);
+			if (pruus.isEmpty()) {
+				throw new OpomboException("Nenhum Pruu encontrado com os filtros fornecidos.");
+			}
+		} catch (OpomboException e) {
+			return ResponseEntity.badRequest().body(null); //400 Bad Request
+		} catch (Exception e) {
+			return ResponseEntity.status(500).body(null); //500 Internal Server Error
+		}
+
+		return ResponseEntity.ok(pruus); //200 
+	}
 }

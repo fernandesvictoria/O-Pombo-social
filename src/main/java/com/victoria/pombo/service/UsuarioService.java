@@ -1,11 +1,16 @@
 package com.victoria.pombo.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import com.victoria.pombo.exception.OpomboException;
 import com.victoria.pombo.model.entity.Usuario;
 import com.victoria.pombo.model.repository.UsuarioRepository;
+import com.victoria.pombo.model.seletor.UsuarioSeletor;
 
+import jakarta.persistence.criteria.Predicate;
+
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -35,29 +40,39 @@ public class UsuarioService {
 		return repository.save(usuarioAtualizado);
 	}
 
-	public void excluir(Integer id) {
+	public void excluir(Integer id) throws OpomboException {
+		Usuario usuario = repository.findById(id).orElseThrow(() -> new OpomboException("Usuário não encontrado."));
+
+		// verificar se o usuário já fez algum Pruu
+		if (usuario.getPruus() != null && !usuario.getPruus().isEmpty()) {
+			throw new OpomboException("Usuário não pode ser excluído, pois já fez um Pruu.");
+		}
+
 		repository.deleteById(id);
 	}
-	
+
 	public void validarAdmin(Usuario usuario) throws OpomboException {
-	    if (!usuario.isAdmin()) {
-	        throw new OpomboException("Usuário não autorizado. Somente administradores podem bloquear pruus.");
-	    }
+		if (!usuario.isAdmin()) {
+			throw new OpomboException("Usuário não autorizado. Somente administradores podem bloquear pruus.");
+		}
 	}
 
-//	public List<Usuario> listarComSeletor(UsuarioSeletor seletor) {
-//		if(seletor.temPaginacao()) {
-//			int pageNumber = seletor.getPagina();
-//			int pageSize = seletor.getLimite();
-//			
-//		
-//			PageRequest pagina = PageRequest.of(pageNumber - 1, pageSize);
-//			return repository.findAll(seletor, pagina).toList();
-//		}
-//		
-//		//https://www.baeldung.com/spring-data-jpa-query-by-example
-//		return repository.findAll(seletor);
-//	}
+	 public List<Usuario> listarComFiltros(UsuarioSeletor seletor) {
+	        Specification<Usuario> specification = (root, query, criteriaBuilder) -> {
+	            List<Predicate> predicates = new ArrayList<>();
 
+	            if (seletor.getNome() != null && !seletor.getNome().trim().isEmpty()) {
+	                predicates.add(criteriaBuilder.like(root.get("nome"), "%" + seletor.getNome() + "%"));
+	            }
+
+	            if (seletor.getEmail() != null && !seletor.getEmail().trim().isEmpty()) {
+	                predicates.add(criteriaBuilder.like(root.get("email"), "%" + seletor.getEmail() + "%"));
+	            }
+
+	            return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
+	        };
+
+	        return repository.findAll(specification);
+	    }
 
 }

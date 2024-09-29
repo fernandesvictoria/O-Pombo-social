@@ -1,14 +1,13 @@
 package com.victoria.pombo.model.entity;
 
 import java.time.LocalDateTime;
-import java.util.UUID;
 import java.util.List;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UuidGenerator;
+
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
@@ -18,15 +17,17 @@ import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Data
 @Table
+@NoArgsConstructor
 public class Pruu {
 
-	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
-	private UUID uuid;
+	@Id 
+	@UuidGenerator
+	private String uuid;
 
 	@NotBlank(message = "Pruu text is required")
 	@Size(min = 1, max = 300, message = "Número de caracteres inválido")

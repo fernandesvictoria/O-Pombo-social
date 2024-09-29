@@ -1,6 +1,5 @@
 package com.victoria.pombo.model.entity;
 
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -43,7 +42,7 @@ public class Usuario {
 	private boolean isAdmin;
 
 	// Relacionamento de um-para-muitos: um usuário pode criar vários pruus
-	@OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+	@OneToMany(mappedBy = "usuario", fetch = FetchType.LAZY)
 	@JsonBackReference
 	private List<Pruu> pruus;
 

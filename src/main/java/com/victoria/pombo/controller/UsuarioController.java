@@ -58,8 +58,9 @@ public class UsuarioController {
 			return new ResponseEntity<>(usuarioSalvo, HttpStatus.CREATED);
 		} catch (OpomboException e) {
 			return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
-		} catch (DataIntegrityViolationException e) { // Exceção para CPF duplicado
-			return new ResponseEntity<>("{\"message\": \"Erro: CPF já está cadastrado\", \"status\": 500}",
+		} catch (DataIntegrityViolationException e) { // Exceção para CPF ou email duplicado
+			return new ResponseEntity<>(
+					"{\"message\": \"Erro: Já existe um usuário com estes dados\", \"status\": 500}",
 					HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
@@ -73,14 +74,22 @@ public class UsuarioController {
 	@Operation(summary = "Deletar usuário por ID", description = "Remove um usuário específico pelo seu ID.", responses = {
 			@ApiResponse(responseCode = "200", description = "Usuário excluído com sucesso"), })
 	@DeleteMapping(path = "/{id}")
-	public void excluir(@PathVariable int id) {
+	public void excluir(@PathVariable int id) throws OpomboException {
 
 		usuarioService.excluir(id);
 	}
 
-	// @PostMapping("/filtros")
-	// public List<Usuario> listarComFiltros(@RequestBody UsuarioSeletor seletor) {
-	// return usuarioService.listarComFiltros(seletor);
-	// }
+	@PostMapping("/filtro")
+	@Operation(summary = "Pesquisar com filtro", description = "Pesquisa usuários de acordo com os filtros selecionados.", responses = {
+			@ApiResponse(responseCode = "200", description = "Usuário encontrado com sucesso", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Usuario.class))), })
+	public ResponseEntity<List<Usuario>> pesquisarComFiltros(@RequestBody UsuarioSeletor seletor) {
+		try {
+			List<Usuario> usuarios = usuarioService.listarComFiltros(seletor);
+			return ResponseEntity.ok(usuarios);
+		} catch (Exception e) {
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+		}
+
+	}
 
 }
