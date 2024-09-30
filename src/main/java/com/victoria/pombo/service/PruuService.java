@@ -1,11 +1,14 @@
 package com.victoria.pombo.service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import com.victoria.pombo.exception.OpomboException;
+import com.victoria.pombo.model.dto.PruuDTO;
+import com.victoria.pombo.model.entity.Denuncia;
 import com.victoria.pombo.model.entity.Pruu;
 import com.victoria.pombo.model.entity.Usuario;
 import com.victoria.pombo.model.repository.PruuRepository;
@@ -95,5 +98,34 @@ public class PruuService {
 
 		// Executa a consulta com os filtros
 		return pruuRepository.findAll(specification);
+	}
+
+	public List<Usuario> qtdCurtidas(String publicationId) throws OpomboException {
+		Pruu pruu = pruuRepository.findById(publicationId)
+				.orElseThrow(() -> new OpomboException("Publicação não encontrada."));
+
+		return pruu.getLikes();
+	}
+
+	public List<Denuncia> qtdDenuncias(String pruuID) throws OpomboException {
+		Pruu pruu = pruuRepository.findById(pruuID)
+				.orElseThrow(() -> new OpomboException("Publicação não encontrada."));
+
+		return pruu.getDenuncias();
+	}
+
+	public List<PruuDTO> gerarDTO() throws OpomboException {
+		List<Pruu> pruus = this.pesquisarTodos();
+		List<PruuDTO> dto = new ArrayList<>();
+
+		for (Pruu pruu : pruus) {
+			Integer qtdLikes = this.qtdCurtidas(pruu.getUuid()).size();
+			Integer qtdDenuncias = this.qtdDenuncias(pruu.getUuid()).size();
+			PruuDTO pruuDTO = Pruu.toDTO(pruu, qtdLikes, qtdDenuncias);
+			dto.add(pruuDTO);
+		}
+
+		return dto;
+
 	}
 }

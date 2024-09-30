@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import com.victoria.pombo.exception.OpomboException;
+import com.victoria.pombo.model.dto.PruuDTO;
 import com.victoria.pombo.model.entity.Pruu;
 import com.victoria.pombo.model.entity.Usuario;
 import com.victoria.pombo.model.seletor.PruuSeletor;
@@ -85,7 +86,7 @@ public class PruuController {
 	@Operation(summary = "Listar todas as Pruus", description = "Retorna uma lista de todas as Pruus ordenadas pela data de criação em ordem decrescente.", responses = {
 			@ApiResponse(responseCode = "200", description = "Lista de Pruus retornada com sucesso", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Pruu.class))),
 			@ApiResponse(responseCode = "500", description = "Erro interno do servidor", content = @Content(mediaType = "application/json", schema = @Schema(description = "Detalhes do erro interno", example = "{\"message\": \"Erro interno do servidor\", \"status\": 500}"))) })
-	@GetMapping("/all")
+	@GetMapping("/todos")
 	public ResponseEntity<List<Pruu>> pesquisarTodosPruusPorOrdemDesc() {
 		List<Pruu> pruus = pruuService.findAllOrderByCreatedAtDesc();
 		return new ResponseEntity<>(pruus, HttpStatus.OK);
@@ -104,10 +105,13 @@ public class PruuController {
 			return new ResponseEntity<>(e.getMessage(), HttpStatus.FORBIDDEN);
 		}
 	}
+	
+	
 	@Operation(summary = "Pesquisar com filtro", description = "Retorna uma lista de pruus seguinte especificações.", responses = {
 			@ApiResponse(responseCode = "200", description = "Pruus filtrados com sucesso", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Pruu.class))),
 			@ApiResponse(responseCode = "500", description = "Erro interno do servidor", content = @Content(mediaType = "application/json", schema = @Schema(description = "Detalhes do erro interno", example = "{\"message\": \"Erro interno do servidor\", \"status\": 500}"))) })
 	@GetMapping("/filtro")
+
 	public ResponseEntity<List<Pruu>> pesquisarComFiltros(PruuSeletor seletor) {
 		List<Pruu> pruus;
 
@@ -124,4 +128,15 @@ public class PruuController {
 
 		return ResponseEntity.ok(pruus); //200 
 	}
+	
+	  @Operation(summary = "Gera relatório de pruu",
+	            description = "Retorna relatorio de pruus",
+	            responses = {
+	                    @ApiResponse(responseCode = "200", description = "Relatório gerado com sucesso."),
+	                    @ApiResponse(responseCode = "400", description = "Pruu não encontrado."),
+	            })
+	    @GetMapping("/relatorio")
+	    public List<PruuDTO> gerarRelatorioDTO() throws OpomboException {
+	        return pruuService.gerarDTO();
+	    }
 }

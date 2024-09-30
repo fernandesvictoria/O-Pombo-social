@@ -6,6 +6,8 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UuidGenerator;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.victoria.pombo.model.dto.PruuDTO;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
@@ -13,6 +15,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -25,7 +28,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class Pruu {
 
-	@Id 
+	@Id
 	@UuidGenerator
 	private String uuid;
 
@@ -34,25 +37,35 @@ public class Pruu {
 	private String texto;
 
 	@Column(updatable = false)
-	@CreationTimestamp 
+	@CreationTimestamp
 	private LocalDateTime dataCriacao;
 
 	@Column
 	private Integer quantidadeLikes = 0;
 
-	// Relacionamento muitos-para-um: cada Pruu é criado por um único usuário
 	@ManyToOne
 	@JoinColumn(name = "user_id")
 	@JsonBackReference
 	private Usuario usuario;
 
-	// Relacionamento muitos-para-muitos: vários usuários podem curtir um Pruu
+	
 	@ManyToMany
-	@JoinTable(name = "usuarios_curtiram_pruus",
-			   joinColumns = @JoinColumn(name = "pruu_id"),
-	           inverseJoinColumns = @JoinColumn(name = "usuario_id"))
+	@JoinTable(name = "usuarios_curtiram_pruus", joinColumns = @JoinColumn(name = "pruu_id"), inverseJoinColumns = @JoinColumn(name = "usuario_id"))
 	private List<Usuario> likes;
 
 	@Column
 	private boolean bloqueado;
+	
+	 @OneToMany(mappedBy = "denuncias")
+	    @JsonBackReference
+	    private List<Denuncia> denuncias;
+
+	public static PruuDTO toDTO(Pruu pruu, Integer qtdLikes, Integer qtdDenuncias) {
+		if (!pruu.isBloqueado()) {
+			pruu.setTexto("Bloqueado");
+		}
+
+		return new PruuDTO(pruu.getUuid(), pruu.getTexto(), pruu.getUsuario().getId().toString(),
+				pruu.getUsuario().getNome(), qtdLikes, qtdDenuncias);
+	}
 }

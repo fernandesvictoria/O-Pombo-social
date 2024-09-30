@@ -2,7 +2,11 @@ package com.victoria.pombo.model.entity;
 
 import java.time.LocalDateTime;
 
+import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UuidGenerator;
+
+import com.victoria.pombo.model.dto.DenunciaDTO;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.Column;
@@ -16,14 +20,16 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.Data;
 
+
 @Entity
 @Data
 @Table(name = "denuncias")
 public class Denuncia {
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Integer idDenuncia;
+	@GeneratedValue(strategy = GenerationType.UUID)
+	@UuidGenerator
+	private String id;
 
 	@Column(updatable = false)
 	@CreationTimestamp
@@ -42,9 +48,11 @@ public class Denuncia {
 	@Column(nullable = false)
 	private Motivo motivo;
 
-	@Schema(description = "Situação Denuncia", example = "ANALISADA", allowableValues = { "PENDENTE", "ANALISADA",
-	"CONTEUDO_INAPROPRIADO" })
-	@Column(nullable = false)
-	private Situacao situacao;
+	@ColumnDefault("false")
+	private Boolean analisada = false;
 
+	public static DenunciaDTO toDTO(String idPruu, Integer quantidadeDenuncias, Integer qntDenunciasPendentes,
+			Integer qntDenunciasAnalisadas) {
+		return new DenunciaDTO(idPruu, quantidadeDenuncias, qntDenunciasPendentes, qntDenunciasAnalisadas);
+	}
 }
