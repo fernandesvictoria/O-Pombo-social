@@ -66,9 +66,9 @@ public class DenunciaController {
 			@ApiResponse(responseCode = "400", description = "Denuncia não encontrada"),
 			@ApiResponse(responseCode = "401", description = "Usuário não atualizado.") })
 	@DeleteMapping("/{id}")
-	public boolean deleteById(@PathVariable String id) {
-		// validar permissão usuário
-		return denunciaService.excluir(id);
+	public boolean deleteById(@PathVariable String id, String idUsuarioAtual) throws OpomboException {
+	
+		return denunciaService.excluir(id, idUsuarioAtual);
 	}
 
 	@Operation(summary = "Retorna relatório de denuncia", description = "Retorna relatório de denuncia de um pruu.", responses = {

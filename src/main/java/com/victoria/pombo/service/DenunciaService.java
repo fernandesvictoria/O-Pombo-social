@@ -3,6 +3,8 @@ package com.victoria.pombo.service;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 
@@ -59,31 +61,43 @@ public class DenunciaService {
 		this.denunciaRepository.save(denuncia);
 	}
 
-	public boolean excluir(String id) {
-		denunciaRepository.deleteById(id);
-		return true;
+	public boolean excluir(String id, String usuarioAtualId) throws OpomboException {
+		Optional<Denuncia> denunciaOpt = denunciaRepository.findById(id);
+		if (denunciaOpt.isPresent()) {
+			Denuncia denuncia = denunciaOpt.get();
+
+		
+			if (denuncia.getId().equals(usuarioAtualId)) {
+				denunciaRepository.deleteById(id);
+				return true;
+			} else {
+				throw new OpomboException("Apenas o usuário que realizou a denúncia pode deletá-la.");
+			}
+		} else {
+			throw new OpomboException("Denúncia não encontrada.");
+		}
 	}
 
 	public List<Denuncia> pesquisarComFiltros(DenunciaSeletor seletor, Integer userId) throws OpomboException {
-        isAdmin(userId);
-       
-        return denunciaRepository.findAll(seletor, Sort.by(Sort.Direction.DESC));
-    }
-	
-	public DenunciaDTO gerarDTO(Integer usuarioID, String pruuID) throws OpomboException {
-	    isAdmin(usuarioID); // Verifica se o usuário é administrador
-	    List<Denuncia> denuncias = this.denunciaRepository.pesquisarPruuPorID(pruuID);
-	    List<Denuncia> denunciasPendentes = new ArrayList<>();
-	    List<Denuncia> denunciaAnalisadas = new ArrayList<>();
+		isAdmin(userId);
 
-	    for (Denuncia d : denuncias) {
-	        if (!d.getAnalisada()) { // Se 'analisada' for false, significa que está pendente
-	            denunciasPendentes.add(d);
-	        }
-	        if (d.getAnalisada()) { // Se 'analisada' for true, significa que já foi analisada
-	            denunciaAnalisadas.add(d);
-	        }
-	    }
+		return denunciaRepository.findAll(seletor, Sort.by(Sort.Direction.DESC));
+	}
+
+	public DenunciaDTO gerarDTO(Integer usuarioID, String pruuID) throws OpomboException {
+		isAdmin(usuarioID); // Verifica se o usuário é administrador
+		List<Denuncia> denuncias = this.denunciaRepository.pesquisarPruuPorID(pruuID);
+		List<Denuncia> denunciasPendentes = new ArrayList<>();
+		List<Denuncia> denunciaAnalisadas = new ArrayList<>();
+
+		for (Denuncia d : denuncias) {
+			if (!d.getAnalisada()) { // Se 'analisada' for false, significa que está pendente
+				denunciasPendentes.add(d);
+			}
+			if (d.getAnalisada()) { // Se 'analisada' for true, significa que já foi analisada
+				denunciaAnalisadas.add(d);
+			}
+		}
 
 		DenunciaDTO dto = Denuncia.toDTO(pruuID, denuncias.size(), denunciasPendentes.size(),
 				denunciaAnalisadas.size());
