@@ -30,6 +30,13 @@ public class DenunciaService {
 			throw new OpomboException("Motivo inválido");
 		}
 
+		boolean denunciaExistente = denunciaRepository.existsByUsuarioIdAndPostagemId(denuncia.getUser().getId(),
+				denuncia.getPruu().getUuid());
+
+		if (denunciaExistente) {
+			throw new OpomboException("Usuário já denunciou esta postagem.");
+		}
+
 		return denunciaRepository.save(denuncia);
 	}
 
@@ -66,7 +73,6 @@ public class DenunciaService {
 		if (denunciaOpt.isPresent()) {
 			Denuncia denuncia = denunciaOpt.get();
 
-		
 			if (denuncia.getId().equals(usuarioAtualId)) {
 				denunciaRepository.deleteById(id);
 				return true;
