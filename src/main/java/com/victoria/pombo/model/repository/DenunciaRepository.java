@@ -10,7 +10,9 @@ import com.victoria.pombo.model.entity.Denuncia;
 
 @Repository
 public interface DenunciaRepository extends JpaRepository<Denuncia, String>, JpaSpecificationExecutor<Denuncia> {
-	List<Denuncia> pesquisarPruuPorID(String idPruu);
-
-	boolean existsByUsuarioIdAndPostagemId(Integer usuarioID, String pruuID);
+	
+	
+	List<Denuncia> findByPruuUuid(String uuid);
+//arrumar
+//	boolean existsByUsuarioIdAndPostagemId(Integer usuario_id, String pruuUuid);
 }

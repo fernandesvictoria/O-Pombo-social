@@ -7,6 +7,7 @@ import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
+import org.springframework.stereotype.Service;
 
 import com.victoria.pombo.exception.OpomboException;
 import com.victoria.pombo.model.dto.DenunciaDTO;
@@ -17,6 +18,7 @@ import com.victoria.pombo.model.repository.DenunciaRepository;
 import com.victoria.pombo.model.repository.UsuarioRepository;
 import com.victoria.pombo.model.seletor.DenunciaSeletor;
 
+@Service
 public class DenunciaService {
 
 	@Autowired
@@ -29,13 +31,13 @@ public class DenunciaService {
 		if (denuncia.getMotivo() == null || !EnumSet.allOf(Motivo.class).contains(denuncia.getMotivo())) {
 			throw new OpomboException("Motivo inválido");
 		}
-
-		boolean denunciaExistente = denunciaRepository.existsByUsuarioIdAndPostagemId(denuncia.getUser().getId(),
-				denuncia.getPruu().getUuid());
-
-		if (denunciaExistente) {
-			throw new OpomboException("Usuário já denunciou esta postagem.");
-		}
+//Arrumar verificação.
+//		boolean denunciaExistente = denunciaRepository.existsByUsuarioIdAndPostagemId(denuncia.getUsuario().getId(),
+//				denuncia.getPruu().getUuid());
+//
+//		if (denunciaExistente) {
+//			throw new OpomboException("Usuário já denunciou esta postagem.");
+//		}
 
 		return denunciaRepository.save(denuncia);
 	}
@@ -92,7 +94,7 @@ public class DenunciaService {
 
 	public DenunciaDTO gerarDTO(Integer usuarioID, String pruuID) throws OpomboException {
 		isAdmin(usuarioID); // Verifica se o usuário é administrador
-		List<Denuncia> denuncias = this.denunciaRepository.pesquisarPruuPorID(pruuID);
+		List<Denuncia> denuncias = this.denunciaRepository.findByPruuUuid(pruuID);
 		List<Denuncia> denunciasPendentes = new ArrayList<>();
 		List<Denuncia> denunciaAnalisadas = new ArrayList<>();
 
