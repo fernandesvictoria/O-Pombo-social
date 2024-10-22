@@ -23,7 +23,7 @@
 
 	<dependencies>
 		<!-- Dependência swagger agora vai -->
-		
+
 		<dependency>
 			<groupId>org.springdoc</groupId>
 			<artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
@@ -70,10 +70,17 @@
 			<optional>true</optional>
 		</dependency>
 
-		<!-- Dependência para testes -->
+		<!-- Dependências do Spring Boot Test e JUnit 5 -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+
+		<!-- H2 Database para testes em memória -->
+		<dependency>
+			<groupId>com.h2database</groupId>
+			<artifactId>h2</artifactId>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
