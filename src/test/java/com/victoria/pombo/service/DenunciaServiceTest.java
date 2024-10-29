@@ -83,6 +83,12 @@ class DenunciaServiceTest {
         Denuncia denuncia = new Denuncia();
         denuncia.setId(denunciaId);
 
+        Usuario usuario = new Usuario();
+        usuario.setId(1);
+        usuario.setAdmin(true); // Defina a propriedade que concede a permissão de admin
+
+        // mock do usuário com permissão de admin
+        when(usuarioRepository.findById(1)).thenReturn(Optional.of(usuario));
         when(denunciaRepository.findById(denunciaId)).thenReturn(Optional.of(denuncia));
 
         Denuncia result = denunciaService.pesquisarPorID(denunciaId, 1);
@@ -150,12 +156,12 @@ class DenunciaServiceTest {
         DenunciaSeletor seletor = mock(DenunciaSeletor.class);
 
         when(usuarioRepository.findById(userId)).thenReturn(Optional.of(admin));
-        when(denunciaRepository.findAll(seletor, Sort.by(Sort.Direction.DESC))).thenReturn(new ArrayList<>());
+        when(denunciaRepository.findAll(seletor, Sort.by(Sort.Direction.DESC, "dataCriacao"))).thenReturn(new ArrayList<>());
 
         List<Denuncia> result = denunciaService.pesquisarComFiltros(seletor, userId);
 
         assertNotNull(result);
-        verify(denunciaRepository, times(1)).findAll(seletor, Sort.by(Sort.Direction.DESC));
+        verify(denunciaRepository, times(1)).findAll(seletor, Sort.by(Sort.Direction.DESC, "dataCriacao"));
     }
 
     @Test

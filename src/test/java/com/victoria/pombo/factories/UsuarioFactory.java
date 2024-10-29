@@ -8,7 +8,7 @@ public class UsuarioFactory {
         usuario.setNome("Lewis Hamilton");
         usuario.setEmail("lewis@hamilton.com");
         usuario.setCpf("12345678901");
-        usuario.setIsAdmin(false);
+        usuario.setAdmin(false);
         return usuario;
     }
 }

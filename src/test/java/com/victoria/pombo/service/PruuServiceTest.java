@@ -18,6 +18,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 
@@ -35,6 +36,7 @@ public class PruuServiceTest {
     @Mock
     private UsuarioRepository usuarioRepository;
 
+    @Spy
     @InjectMocks
     private PruuService pruuService;
 
@@ -106,7 +108,7 @@ public class PruuServiceTest {
 
         assertThatThrownBy(() -> pruuService.pesquisarPorId(pruu.getUuid()))
                 .isInstanceOf(OpomboException.class)
-                .hasMessageContaining("Pruu com ID " + pruu.getUuid() + " não encontrado.");
+                .hasMessageContaining("Pruu  ID " + pruu.getUuid() + " não encontrado.");
     }
 
     @Test
@@ -147,11 +149,18 @@ public class PruuServiceTest {
         when(pruuRepository.findById(pruu.getUuid())).thenReturn(Optional.of(pruu));
         when(usuarioRepository.findById(usuario.getId())).thenReturn(Optional.of(usuario));
 
+        // usando doReturn().when() para métodos do spy
+        doReturn(new ArrayList<>()).when(pruuService).qtdCurtidas(pruu.getUuid());
+        doReturn(new ArrayList<>()).when(pruuService).qtdDenuncias(pruu.getUuid());
+
         List<PruuDTO> result = pruuService.gerarDTO();
 
         assertThat(result).isNotEmpty();
         assertThat(result.get(0).getId()).isEqualTo(pruu.getUuid());
     }
+
+
+
 
     @Test
     @DisplayName("Deve bloquear um Pruu")

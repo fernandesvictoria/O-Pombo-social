@@ -1,6 +1,7 @@
 package com.victoria.pombo.model.entity;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UuidGenerator;
@@ -51,12 +52,12 @@ public class Pruu {
 	
 	@ManyToMany
 	@JoinTable(name = "usuarios_curtiram_pruus", joinColumns = @JoinColumn(name = "pruu_id"), inverseJoinColumns = @JoinColumn(name = "usuario_id"))
-	private List<Usuario> likes;
+	private List<Usuario> likes = new ArrayList<>();
 
 	@Column
 	private boolean bloqueado;
 	
-	 @OneToMany(mappedBy = "denuncias")
+	 @OneToMany(mappedBy = "pruu")
 	    @JsonBackReference
 	    private List<Denuncia> denuncias;
 

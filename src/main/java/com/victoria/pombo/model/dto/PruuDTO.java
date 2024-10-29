@@ -12,4 +12,5 @@ public class PruuDTO {
     private String nomeUsuario;
     private Integer quantidadeLikes;
     private Integer quantidadeDenuncias;
+
 }

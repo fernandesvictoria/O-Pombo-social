@@ -89,7 +89,7 @@ public class DenunciaService {
 	public List<Denuncia> pesquisarComFiltros(DenunciaSeletor seletor, Integer userId) throws OpomboException {
 		isAdmin(userId);
 
-		return denunciaRepository.findAll(seletor, Sort.by(Sort.Direction.DESC));
+		return denunciaRepository.findAll(seletor, Sort.by(Sort.Direction.DESC, "dataCriacao"));
 	}
 
 	public DenunciaDTO gerarDTO(Integer usuarioID, String pruuID) throws OpomboException {
