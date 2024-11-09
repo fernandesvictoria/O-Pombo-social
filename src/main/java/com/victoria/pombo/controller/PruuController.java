@@ -1,11 +1,14 @@
 package com.victoria.pombo.controller;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
 import com.victoria.pombo.auth.AuthService;
+import com.victoria.pombo.model.enums.Role;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.media.Content;
+import jakarta.servlet.annotation.MultipartConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -28,9 +31,12 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping(path = "/pruu")
+@MultipartConfig(fileSizeThreshold = 10485760) // 10MB
+//https://www.gigacalculator.com/converters/convert-mb-to-bytes.php
 public class PruuController {
 
 	@Autowired
@@ -42,6 +48,41 @@ public class PruuController {
     @Autowired
     private UsuarioService usuarioService;
 
+	@Operation(
+			summary = "Upload de Imagem para Carta",
+			requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
+					description = "Arquivo de imagem a ser enviado",
+					required = true,
+					content = @Content(
+							mediaType = "multipart/form-data",
+							schema = @Schema(type = "string", format = "binary")
+					)
+			),
+			description = "Realiza o upload de uma imagem associada a um pruu."
+	)
+	@PostMapping("/upload")
+	public void fazerUploadImagemPruu(@RequestParam("imagem") MultipartFile imagem,
+								 @RequestParam("idPruu") String idCarta)
+			throws OpomboException, IOException {
+		if(imagem == null) {
+			throw new OpomboException("Arquivo inválido");
+		}
+		Integer idPruuConvertidoParaInteger;
+		try {
+			idPruuConvertidoParaInteger = Integer.parseInt(idCarta);
+		} catch (NumberFormatException e) {
+			throw new OpomboException("idPruu inválido");
+		}
+		Usuario usuarioAutenticado = authService.getUsuarioAutenticado();
+		if(usuarioAutenticado == null) {
+			throw new OpomboException("Usuário não encontrado");
+		}
+		if(usuarioAutenticado.getRole() == Role.USER) {
+			throw new OpomboException("Usuário sem permissão de acesso");
+		}
+		pruuService.salvarImagemPruu(imagem, idPruuConvertidoParaInteger);
+	}
+	
 	@Operation(summary = "Listar todos os pruus", description = "Retorna uma lista de todos os pruus cadastrados no sistema.", responses = {
 			@ApiResponse(responseCode = "200", description = "Lista de pruus retornada com sucesso") })
 

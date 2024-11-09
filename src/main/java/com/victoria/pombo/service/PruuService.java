@@ -1,11 +1,5 @@
 package com.victoria.pombo.service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.jpa.domain.Specification;
-import org.springframework.stereotype.Service;
 import com.victoria.pombo.exception.OpomboException;
 import com.victoria.pombo.model.dto.PruuDTO;
 import com.victoria.pombo.model.entity.Denuncia;
@@ -14,118 +8,141 @@ import com.victoria.pombo.model.entity.Usuario;
 import com.victoria.pombo.model.repository.PruuRepository;
 import com.victoria.pombo.model.repository.UsuarioRepository;
 import com.victoria.pombo.model.seletor.PruuSeletor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 @Service
 public class PruuService {
 
-	@Autowired
-	private PruuRepository pruuRepository;
+    @Autowired
+    private PruuRepository pruuRepository;
 
-	@Autowired
-	private UsuarioRepository usuarioRepository;
+    @Autowired
+    private UsuarioRepository usuarioRepository;
 
-	public void inserir(Pruu pruu) throws OpomboException {
-		Usuario usuario = usuarioRepository.findById(pruu.getUsuario().getId())
-				.orElseThrow(() -> new OpomboException("Usuário não encontrado"));
+    @Autowired
+    private ImagemService imagemService;
 
-		pruu.setUsuario(usuario);
-		pruuRepository.save(pruu);
-	}
+    public void inserir(Pruu pruu) throws OpomboException {
+        Usuario usuario = usuarioRepository.findById(pruu.getUsuario().getId()).orElseThrow(() -> new OpomboException("Usuário não encontrado"));
 
-	public List<Pruu> pesquisarTodos() {
-		return pruuRepository.findAll();
-	}
+        pruu.setUsuario(usuario);
+        pruuRepository.save(pruu);
+    }
 
-	public Optional<Pruu> pesquisarPorId(String id) throws OpomboException {
-		Optional<Pruu> pruu = pruuRepository.findById(id);
-		if (pruu.isPresent()) {
-			return pruu;
-		} else {
-			throw new OpomboException("Pruu  ID " + id + " não encontrado.");
-		}
-	}
+    public List<Pruu> pesquisarTodos() {
+        return pruuRepository.findAll();
+    }
 
-	public void excluir(String id) {
-		pruuRepository.deleteById(id);
-	}
+    public Optional<Pruu> pesquisarPorId(String id) throws OpomboException {
+        Optional<Pruu> pruu = pruuRepository.findById(id);
+        if (pruu.isPresent()) {
+            return pruu;
+        } else {
+            throw new OpomboException("Pruu  ID " + id + " não encontrado.");
+        }
+    }
 
-	public Pruu curtirPruu(String pruuId, Integer usuarioId) throws OpomboException {
-		Pruu pruu = pruuRepository.findById(pruuId).orElseThrow(() -> new OpomboException("Pruu não encontrado"));
+    public void excluir(String id) {
+        pruuRepository.deleteById(id);
+    }
 
-		Usuario usuario = usuarioRepository.findById(usuarioId)
-				.orElseThrow(() -> new OpomboException("Usuário não encontrado"));
+    public Pruu curtirPruu(String pruuId, Integer usuarioId) throws OpomboException {
+        Pruu pruu = pruuRepository.findById(pruuId).orElseThrow(() -> new OpomboException("Pruu não encontrado"));
 
-		// Verifica se o usuário já curtiu o Pruu
-		if (pruu.getLikes().contains(usuario)) {
-			// Se já curtiu, remove o like e decrementa o contador
-			pruu.setQuantidadeLikes(pruu.getQuantidadeLikes() - 1);
-			pruu.getLikes().remove(usuario);
-		} else {
-			// Se não curtiu, adiciona o like e incrementa o contador
-			pruu.setQuantidadeLikes(pruu.getQuantidadeLikes() + 1);
-			pruu.getLikes().add(usuario);
-		}
+        Usuario usuario = usuarioRepository.findById(usuarioId).orElseThrow(() -> new OpomboException("Usuário não encontrado"));
 
-		// Salva o estado atualizado do Pruu
-		return pruuRepository.save(pruu);
-	}
+        // Verifica se o usuário já curtiu o Pruu
+        if (pruu.getLikes().contains(usuario)) {
+            // Se já curtiu, remove o like e decrementa o contador
+            pruu.setQuantidadeLikes(pruu.getQuantidadeLikes() - 1);
+            pruu.getLikes().remove(usuario);
+        } else {
+            // Se não curtiu, adiciona o like e incrementa o contador
+            pruu.setQuantidadeLikes(pruu.getQuantidadeLikes() + 1);
+            pruu.getLikes().add(usuario);
+        }
 
-	public List<Pruu> findAllByUserOrderByCreatedAtDesc(Usuario usuario) {
-		return pruuRepository.findAllByUsuarioOrderByDataCriacaoDesc(usuario);
-	}
+        // Salva o estado atualizado do Pruu
+        return pruuRepository.save(pruu);
+    }
 
-	public List<Pruu> findAllOrderByCreatedAtDesc() {
-		return pruuRepository.findAllByOrderByDataCriacaoDesc();
-	}
+    public List<Pruu> findAllByUserOrderByCreatedAtDesc(Usuario usuario) {
+        return pruuRepository.findAllByUsuarioOrderByDataCriacaoDesc(usuario);
+    }
 
-	public void bloquear(String id) throws OpomboException {
-		Pruu pruu = pruuRepository.findById(id).orElseThrow(() -> new OpomboException("Pruu não encontrado"));
+    public List<Pruu> findAllOrderByCreatedAtDesc() {
+        return pruuRepository.findAllByOrderByDataCriacaoDesc();
+    }
 
-		pruu.setBloqueado(true);
+    public void bloquear(String id) throws OpomboException {
+        Pruu pruu = pruuRepository.findById(id).orElseThrow(() -> new OpomboException("Pruu não encontrado"));
 
-		pruuRepository.save(pruu);
-	}
+        pruu.setBloqueado(true);
 
-	public List<Pruu> pesquisarComFiltros(PruuSeletor seletor) {
+        pruuRepository.save(pruu);
+    }
 
-		if (!seletor.temFiltro()) {
-			// Se não houver filtros, retorna todos os registros
-			return pruuRepository.findAll();
-		}
+    public List<Pruu> pesquisarComFiltros(PruuSeletor seletor) {
 
-		// Usa o Specification para aplicar os filtros do seletor
-		Specification<Pruu> specification = seletor;
+        if (!seletor.temFiltro()) {
+            // Se não houver filtros, retorna todos os registros
+            return pruuRepository.findAll();
+        }
 
-		// Executa a consulta com os filtros
-		return pruuRepository.findAll(specification);
-	}
+        // Usa o Specification para aplicar os filtros do seletor
+        Specification<Pruu> specification = seletor;
 
-	public List<Usuario> qtdCurtidas(String publicationId) throws OpomboException {
-		Pruu pruu = pruuRepository.findById(publicationId)
-				.orElseThrow(() -> new OpomboException("Publicação não encontrada."));
+        // Executa a consulta com os filtros
+        return pruuRepository.findAll(specification);
+    }
 
-		return pruu.getLikes();
-	}
+    public List<Usuario> qtdCurtidas(String publicationId) throws OpomboException {
+        Pruu pruu = pruuRepository.findById(publicationId).orElseThrow(() -> new OpomboException("Publicação não encontrada."));
 
-	public List<Denuncia> qtdDenuncias(String pruuID) throws OpomboException {
-		Pruu pruu = pruuRepository.findById(pruuID)
-				.orElseThrow(() -> new OpomboException("Publicação não encontrada."));
+        return pruu.getLikes();
+    }
 
-		return pruu.getDenuncias();
-	}
+    public List<Denuncia> qtdDenuncias(String pruuID) throws OpomboException {
+        Pruu pruu = pruuRepository.findById(pruuID).orElseThrow(() -> new OpomboException("Publicação não encontrada."));
 
-	public List<PruuDTO> gerarDTO() throws OpomboException {
-		List<Pruu> pruus = this.pesquisarTodos();
-		List<PruuDTO> dto = new ArrayList<>();
+        return pruu.getDenuncias();
+    }
 
-		for (Pruu pruu : pruus) {
-			Integer qtdLikes = this.qtdCurtidas(pruu.getUuid()).size();
-			Integer qtdDenuncias = this.qtdDenuncias(pruu.getUuid()).size();
-			PruuDTO pruuDTO = Pruu.toDTO(pruu, qtdLikes, qtdDenuncias);
-			dto.add(pruuDTO);
-		}
+    public List<PruuDTO> gerarDTO() throws OpomboException {
+        List<Pruu> pruus = this.pesquisarTodos();
+        List<PruuDTO> dto = new ArrayList<>();
 
-		return dto;
+        for (Pruu pruu : pruus) {
+            Integer qtdLikes = this.qtdCurtidas(pruu.getUuid()).size();
+            Integer qtdDenuncias = this.qtdDenuncias(pruu.getUuid()).size();
+            PruuDTO pruuDTO = Pruu.toDTO(pruu, qtdLikes, qtdDenuncias);
+            dto.add(pruuDTO);
+        }
 
-	}
+        return dto;
+
+    }
+
+    public void salvarImagemPruu(MultipartFile imagem, String idPruu) throws OpomboException {
+
+        Pruu pruuComNovaImagem = pruuRepository.findById(idPruu).orElseThrow(() -> new OpomboException("Pruu não encontrado"));
+
+        //Converter a imagem para base64
+        String imagemBase64 = imagemService.processarImagem(imagem);
+
+        //Inserir a imagem na coluna imagemEmBase64 do pruu
+
+        //TODO ajustar para fazer o upload
+        pruuComNovaImagem.setImagemEmBase64(imagemBase64);
+
+        //Chamar pruuRepository para persistir a imagem na pruu
+        pruuRepository.save(pruuComNovaImagem);
+    }
 }

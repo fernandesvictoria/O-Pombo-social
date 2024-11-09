@@ -49,7 +49,10 @@ public class Pruu {
 	@JsonBackReference
 	private Usuario usuario;
 
-	
+	//TODO mapear adequadamente
+	@Column(columnDefinition = "LONGTEXT")
+	private String imagemEmBase64;
+
 	@ManyToMany
 	@JoinTable(name = "usuarios_curtiram_pruus", joinColumns = @JoinColumn(name = "pruu_id"), inverseJoinColumns = @JoinColumn(name = "usuario_id"))
 	private List<Usuario> likes = new ArrayList<>();
