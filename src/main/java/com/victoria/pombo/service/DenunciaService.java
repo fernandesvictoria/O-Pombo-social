@@ -5,6 +5,7 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
 
+import com.victoria.pombo.model.enums.Role;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
@@ -56,7 +57,7 @@ public class DenunciaService {
 		Usuario usuario = usuarioRepository.findById(userId)
 				.orElseThrow(() -> new OpomboException("Usuário não encontrado."));
 
-		if (!usuario.isAdmin()) {
+		if (!usuario.getRole().equals(Role.ADMIN)) {
 			throw new OpomboException("Usuário não autorizado.");
 		}
 	}

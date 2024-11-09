@@ -47,24 +47,6 @@ public class UsuarioController {
 		return usuarioService.pesquisarPorId(id);
 	}
 
-	@Operation(summary = "Inserir novo usuário", description = "Adiciona um novo usuário ao sistema.", responses = {
-			@ApiResponse(responseCode = "201", description = "Usuário criado com sucesso", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Usuario.class))),
-			@ApiResponse(responseCode = "400", description = "Erro de validação ou regra de negócio", content = @Content(mediaType = "application/json", examples = @ExampleObject(value = "{\"message\": \"Erro de validação: campo X é obrigatório\", \"status\": 400}"))),
-			@ApiResponse(responseCode = "500", description = "Erro no servidor: CPF já existente", content = @Content(mediaType = "application/json", examples = @ExampleObject(value = "{\"message\": \"Erro: CPF já está cadastrado\", \"status\": 500}"))) })
-	@PostMapping
-	public ResponseEntity<?> inserir(@Valid @RequestBody Usuario novoUsuario) {
-		try {
-			Usuario usuarioSalvo = usuarioService.inserir(novoUsuario);
-			return new ResponseEntity<>(usuarioSalvo, HttpStatus.CREATED);
-		} catch (OpomboException e) {
-			return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
-		} catch (DataIntegrityViolationException e) { // Exceção para CPF ou email duplicado
-			return new ResponseEntity<>(
-					"{\"message\": \"Erro: Já existe um usuário com estes dados\", \"status\": 500}",
-					HttpStatus.INTERNAL_SERVER_ERROR);
-		}
-	}
-
 	@Operation(summary = "Atualizar usuário existente", description = "Atualiza os dados de um usuário existente.")
 	@PutMapping
 	public Usuario atualizar(@RequestBody Usuario novoUsuario) throws OpomboException {

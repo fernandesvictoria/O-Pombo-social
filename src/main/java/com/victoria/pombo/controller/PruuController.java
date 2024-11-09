@@ -2,6 +2,8 @@ package com.victoria.pombo.controller;
 
 import java.util.List;
 import java.util.Optional;
+
+import com.victoria.pombo.auth.AuthService;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.media.Content;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,8 +35,12 @@ public class PruuController {
 
 	@Autowired
 	private PruuService pruuService;
+
 	@Autowired
-	private UsuarioService usuarioService;
+	private AuthService authService;
+
+    @Autowired
+    private UsuarioService usuarioService;
 
 	@Operation(summary = "Listar todos os pruus", description = "Retorna uma lista de todos os pruus cadastrados no sistema.", responses = {
 			@ApiResponse(responseCode = "200", description = "Lista de pruus retornada com sucesso") })
@@ -47,7 +53,6 @@ public class PruuController {
 	}
 
 	@Operation(summary = "Pesquisar pruu por ID", description = "Busca um pruu específico pelo seu ID.")
-
 	@GetMapping(path = "/{id}")
 	public Optional<Pruu> pesquisarPorId(@PathVariable String id) throws OpomboException {
 		return pruuService.pesquisarPorId(id);

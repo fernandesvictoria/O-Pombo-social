@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import com.victoria.pombo.model.enums.Role;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -66,7 +67,7 @@ class DenunciaServiceTest {
         int userId = 1;
         Usuario admin = new Usuario();
         admin.setId(userId);
-        admin.setAdmin(true);
+        admin.getRole().equals(Role.ADMIN);
 
         when(usuarioRepository.findById(userId)).thenReturn(Optional.of(admin));
         when(denunciaRepository.findAll()).thenReturn(new ArrayList<>());
@@ -85,7 +86,7 @@ class DenunciaServiceTest {
 
         Usuario usuario = new Usuario();
         usuario.setId(1);
-        usuario.setAdmin(true); // Defina a propriedade que concede a permissão de admin
+        usuario.setRole(Role.ADMIN); // Defina a propriedade que concede a permissão de admin
 
         // mock do usuário com permissão de admin
         when(usuarioRepository.findById(1)).thenReturn(Optional.of(usuario));
@@ -151,7 +152,7 @@ class DenunciaServiceTest {
         int userId = 1;
         Usuario admin = new Usuario();
         admin.setId(userId);
-        admin.setAdmin(true);
+        admin.setRole(Role.ADMIN);
 
         DenunciaSeletor seletor = mock(DenunciaSeletor.class);
 
@@ -180,7 +181,7 @@ class DenunciaServiceTest {
 
         Usuario admin = new Usuario();
         admin.setId(userId);
-        admin.setAdmin(true);
+        admin.setRole(Role.ADMIN);
 
         when(usuarioRepository.findById(userId)).thenReturn(Optional.of(admin));
         when(denunciaRepository.findByPruuUuid(pruuId)).thenReturn(denuncias);

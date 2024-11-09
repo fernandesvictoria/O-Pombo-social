@@ -1,25 +1,28 @@
 package com.victoria.pombo.model.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.Table;
+import com.victoria.pombo.model.enums.Role;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 import lombok.Data;
+
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import org.hibernate.validator.constraints.Length;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 @Entity
 @Data
 @Table
-public class Usuario {
+public class Usuario implements UserDetails {
+
+	private static final long serialVersionUID = 3667682428012659277L;
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -40,12 +43,32 @@ public class Usuario {
 	@Column(unique = true, nullable = false)
 	private String cpf;
 
-	@Column(nullable = false)
-	private boolean isAdmin;
+	@Enumerated(EnumType.STRING)
+	private Role role = Role.USER;
+
+	@NotBlank(message = "A senha não deve estar em branco.")
+	@Size(max = 500)
+	private String senha;
 
 	// Relacionamento de um-para-muitos: um usuário pode criar vários pruus
 	@OneToMany(mappedBy = "usuario", fetch = FetchType.LAZY)
 	@JsonBackReference
 	private List<Pruu> pruus;
 
+	@Override
+	public Collection<? extends GrantedAuthority> getAuthorities() {
+		List<GrantedAuthority> list = new ArrayList<GrantedAuthority>();
+		list.add(new SimpleGrantedAuthority(role.toString()));
+		return list;
+	}
+
+	@Override
+	public String getPassword() {
+		return this.senha;
+	}
+
+	@Override
+	public String getUsername() {
+		return this.email;
+	}
 }

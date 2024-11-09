@@ -9,6 +9,7 @@ import static org.mockito.Mockito.times;
 import com.victoria.pombo.exception.OpomboException;
 import com.victoria.pombo.model.entity.Pruu;
 import com.victoria.pombo.model.entity.Usuario;
+import com.victoria.pombo.model.enums.Role;
 import com.victoria.pombo.model.repository.UsuarioRepository;
 import com.victoria.pombo.model.seletor.UsuarioSeletor;
 import org.junit.jupiter.api.BeforeEach;
@@ -157,7 +158,7 @@ public class UsuarioServiceTest {
     @DisplayName("Deve validar um usuário administrador")
     public void testValidarAdmin$notAdmin() {
         Usuario usuario = new Usuario();
-        usuario.setAdmin(false);
+        usuario.setRole(Role.USER);
 
         assertThatThrownBy(() -> usuarioService.validarAdmin(usuario))
                 .isInstanceOf(OpomboException.class)

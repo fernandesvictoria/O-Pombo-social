@@ -2,7 +2,9 @@ package com.victoria.pombo.model.repository;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import com.victoria.pombo.factories.UsuarioFactory;
 import com.victoria.pombo.model.entity.Usuario;
+import com.victoria.pombo.model.enums.Role;
 import jakarta.validation.ConstraintViolationException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -26,7 +28,7 @@ public class UsuarioRepositoryTest {
         usuario.setNome(nome);
         usuario.setEmail("lewis@hamilton.com");
         usuario.setCpf("12345678901");
-        usuario.setAdmin(false);
+        usuario.setRole(Role.USER);
 
         assertThatThrownBy(() -> usuarioRepository.save(usuario))
             .isInstanceOf(ConstraintViolationException.class);
@@ -35,11 +37,8 @@ public class UsuarioRepositoryTest {
     @Test
     @DisplayName("Deve lançar uma exceção ao tentar inserir um usuário com email inválido")
     public void testInsert$emailInvalido() {
-        Usuario usuario = new Usuario();
-        usuario.setNome("Fernando Alonso");
-        usuario.setEmail("emailinvalido");
-        usuario.setCpf("12345678901");
-        usuario.setAdmin(false);
+        Usuario usuario = UsuarioFactory.createUsuario();
+        usuario.setEmail("lewis@hamilton"); // email inválido
 
         assertThatThrownBy(() -> usuarioRepository.save(usuario))
             .isInstanceOf(ConstraintViolationException.class);
@@ -48,13 +47,19 @@ public class UsuarioRepositoryTest {
     @Test
     @DisplayName("Deve lançar uma exceção ao tentar inserir um usuário com CPF inválido (menos de 11 dígitos)")
     public void testInsert$cpfInvalido() {
-        Usuario usuario = new Usuario();
-        usuario.setNome("Max Verstappen");
-        usuario.setEmail("max@verstappen.com");
-        usuario.setCpf("1234567"); // CPF com menos de 11 dígitos
-        usuario.setAdmin(false);
+        Usuario usuario = UsuarioFactory.createUsuario();
+        usuario.setCpf("12345"); // CPF inválido
 
         assertThatThrownBy(() -> usuarioRepository.save(usuario))
             .isInstanceOf(ConstraintViolationException.class);
+    }
+
+    @Test
+    @DisplayName("Deve lançar uma exceção ao tentar inserir um usuário sem senha")
+    public void testInsert$userWithoutPassword() {
+        Usuario usuario = UsuarioFactory.createUsuario();
+        usuario.setSenha(null);
+        assertThatThrownBy(() -> usuarioRepository.saveAndFlush(usuario)).isInstanceOf(ConstraintViolationException.class)
+                .hasMessageContaining("A senha não pode estar em branco.");
     }
 }
