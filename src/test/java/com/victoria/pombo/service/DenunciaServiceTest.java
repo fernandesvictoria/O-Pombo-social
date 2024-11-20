@@ -19,7 +19,7 @@ import org.springframework.data.domain.Sort;
 import com.victoria.pombo.exception.OpomboException;
 import com.victoria.pombo.model.dto.DenunciaDTO;
 import com.victoria.pombo.model.entity.Denuncia;
-import com.victoria.pombo.model.entity.Motivo;
+import com.victoria.pombo.model.enums.Motivo;
 import com.victoria.pombo.model.entity.Usuario;
 import com.victoria.pombo.model.repository.DenunciaRepository;
 import com.victoria.pombo.model.repository.UsuarioRepository;

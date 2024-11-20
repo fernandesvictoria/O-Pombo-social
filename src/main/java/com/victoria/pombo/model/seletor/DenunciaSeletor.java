@@ -7,7 +7,7 @@ import java.util.List;
 import org.springframework.data.jpa.domain.Specification;
 
 import com.victoria.pombo.model.entity.Denuncia;
-import com.victoria.pombo.model.entity.Motivo;
+import com.victoria.pombo.model.enums.Motivo;
 
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;

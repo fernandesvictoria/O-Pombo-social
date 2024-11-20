@@ -2,6 +2,7 @@ package com.victoria.pombo.model.entity;
 
 import java.time.LocalDateTime;
 
+import com.victoria.pombo.model.enums.Motivo;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UuidGenerator;

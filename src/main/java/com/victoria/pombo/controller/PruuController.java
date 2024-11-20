@@ -80,7 +80,7 @@ public class PruuController {
 		if(usuarioAutenticado.getRole() == Role.USER) {
 			throw new OpomboException("Usuário sem permissão de acesso");
 		}
-		pruuService.salvarImagemPruu(imagem, idPruuConvertidoParaInteger);
+		pruuService.salvarImagemPruu(imagem, String.valueOf(idPruuConvertidoParaInteger));
 	}
 	
 	@Operation(summary = "Listar todos os pruus", description = "Retorna uma lista de todos os pruus cadastrados no sistema.", responses = {

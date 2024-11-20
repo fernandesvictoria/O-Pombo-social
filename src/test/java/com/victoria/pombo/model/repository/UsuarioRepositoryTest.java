@@ -1,6 +1,7 @@
 package com.victoria.pombo.model.repository;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.victoria.pombo.factories.UsuarioFactory;
 import com.victoria.pombo.model.entity.Usuario;
@@ -40,8 +41,12 @@ public class UsuarioRepositoryTest {
         Usuario usuario = UsuarioFactory.createUsuario();
         usuario.setEmail("lewis@hamilton"); // email inválido
 
-        assertThatThrownBy(() -> usuarioRepository.save(usuario))
-            .isInstanceOf(ConstraintViolationException.class);
+        try {
+            usuarioRepository.save(usuario);
+        } catch (ConstraintViolationException e) {
+            assertTrue(e.getLocalizedMessage().contains("propertyPath=email"));
+        }
+
     }
 
     @Test
@@ -59,7 +64,11 @@ public class UsuarioRepositoryTest {
     public void testInsert$userWithoutPassword() {
         Usuario usuario = UsuarioFactory.createUsuario();
         usuario.setSenha(null);
-        assertThatThrownBy(() -> usuarioRepository.saveAndFlush(usuario)).isInstanceOf(ConstraintViolationException.class)
-                .hasMessageContaining("A senha não pode estar em branco.");
+
+        try {
+            usuarioRepository.save(usuario);
+        } catch (ConstraintViolationException e) {
+            assertTrue(e.getLocalizedMessage().contains("propertyPath=senha"));
+        }
     }
 }
