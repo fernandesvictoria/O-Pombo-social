@@ -60,19 +60,14 @@ public class PruuController {
 			),
 			description = "Realiza o upload de uma imagem associada a um pruu."
 	)
-	@PostMapping("/upload")
+	@PostMapping("/{id}/upload")
 	public void fazerUploadImagemPruu(@RequestParam("imagem") MultipartFile imagem,
-								 @RequestParam("idPruu") String idCarta)
+									  @PathVariable Integer id)
 			throws OpomboException, IOException {
 		if(imagem == null) {
 			throw new OpomboException("Arquivo inválido");
 		}
-		Integer idPruuConvertidoParaInteger;
-		try {
-			idPruuConvertidoParaInteger = Integer.parseInt(idCarta);
-		} catch (NumberFormatException e) {
-			throw new OpomboException("idPruu inválido");
-		}
+
 		Usuario usuarioAutenticado = authService.getUsuarioAutenticado();
 		if(usuarioAutenticado == null) {
 			throw new OpomboException("Usuário não encontrado");
@@ -80,7 +75,7 @@ public class PruuController {
 		if(usuarioAutenticado.getRole() == Role.USER) {
 			throw new OpomboException("Usuário sem permissão de acesso");
 		}
-		pruuService.salvarImagemPruu(imagem, String.valueOf(idPruuConvertidoParaInteger));
+		pruuService.salvarImagemPruu(imagem, String.valueOf(id));
 	}
 	
 	@Operation(summary = "Listar todos os pruus", description = "Retorna uma lista de todos os pruus cadastrados no sistema.", responses = {
@@ -103,7 +98,7 @@ public class PruuController {
 			@ApiResponse(responseCode = "200", description = "Pruu criado com sucesso", content = @Content(mediaType = "application/json", schema = @Schema(implementation = Pruu.class))),
 			@ApiResponse(responseCode = "400", description = "Erro de validação ou regra de negócio", content = @Content(mediaType = "application/json", examples = @ExampleObject(value = "{\"message\": \"Erro de validação: campo X é obrigatório\", \"status\": 400}"))) })
 	@PostMapping
-	public ResponseEntity<?> inserir(@RequestBody Pruu pruu) throws OpomboException {
+	public ResponseEntity<Usuario> inserir(@RequestBody Pruu pruu) throws OpomboException {
 		pruuService.inserir(pruu);
 		return ResponseEntity.ok().build();
 	}
