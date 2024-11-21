@@ -1,7 +1,6 @@
 package com.victoria.pombo.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -19,10 +18,9 @@ import com.victoria.pombo.model.seletor.UsuarioSeletor;
 import com.victoria.pombo.service.UsuarioService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import jakarta.validation.Valid;
+
 
 @RestController
 @RequestMapping(path = "/usuario")
@@ -57,7 +55,6 @@ public class UsuarioController {
 			@ApiResponse(responseCode = "200", description = "Usuário excluído com sucesso"), })
 	@DeleteMapping(path = "/{id}")
 	public void excluir(@PathVariable int id) throws OpomboException {
-
 		usuarioService.excluir(id);
 	}
 

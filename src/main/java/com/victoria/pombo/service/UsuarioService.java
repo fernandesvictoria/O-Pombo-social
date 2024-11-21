@@ -1,6 +1,7 @@
 package com.victoria.pombo.service;
 
 import com.victoria.pombo.exception.OpomboException;
+import com.victoria.pombo.model.entity.Pruu;
 import com.victoria.pombo.model.entity.Usuario;
 import com.victoria.pombo.model.enums.Role;
 import com.victoria.pombo.model.repository.UsuarioRepository;
@@ -19,77 +20,80 @@ import java.util.List;
 @Service
 public class UsuarioService implements UserDetailsService {
 
-    @Autowired
-    private UsuarioRepository repository;
+	@Autowired
+	private UsuarioRepository repository;
 
-    @Autowired
-    private UsuarioRepository usuarioRepository;
+	@Autowired
+	private UsuarioRepository usuarioRepository;
 
-    public Usuario inserir(Usuario novoUsuario) throws OpomboException {
-        validarPerfilUsuario(novoUsuario);
-        return repository.save(novoUsuario);
-    }
+	@Autowired
+	private PruuService pruuService;
+	
 
-    private void validarPerfilUsuario(Usuario usuario) {
-        if (usuario.getRole() == null) {
-            usuario.setRole(Role.USER);
-        }
-    }
+	public Usuario inserir(Usuario novoUsuario) throws OpomboException {
+		validarPerfilUsuario(novoUsuario);
+		return repository.save(novoUsuario);
+	}
 
-    public List<Usuario> pesquisarTodos() {
-        return repository.findAll();
-    }
+	private void validarPerfilUsuario(Usuario usuario) {
+		if (usuario.getRole() == null) {
+			usuario.setRole(Role.USER);
+		}
+	}
 
-    public Usuario pesquisarPorId(int id) throws OpomboException {
-        return repository.findById(id).orElseThrow(() -> new OpomboException("Usuário não encontrado."));
-    }
+	public List<Usuario> pesquisarTodos() {
+		return repository.findAll();
+	}
 
-    public Usuario atualizar(Usuario usuarioAtualizado) throws OpomboException {
+	public Usuario pesquisarPorId(int id) throws OpomboException {
+		return repository.findById(id).orElseThrow(() -> new OpomboException("Usuário não encontrado."));
+	}
 
-        if (usuarioAtualizado.getId() == null) {
-            throw new OpomboException("Informe o ID");
-        }
+	public Usuario atualizar(Usuario usuarioAtualizado) throws OpomboException {
 
-        return repository.save(usuarioAtualizado);
-    }
+		if (usuarioAtualizado.getId() == null) {
+			throw new OpomboException("Informe o ID");
+		}
 
-    public void excluir(Integer id) throws OpomboException {
-        Usuario usuario = repository.findById(id).orElseThrow(() -> new OpomboException("Usuário não encontrado."));
+		return repository.save(usuarioAtualizado);
+	}
 
-        // verificar se o usuário já fez algum Pruu
-//        if (usuario.getPruus() != null && !usuario.getPruus().isEmpty()) {
-//            throw new OpomboException("Usuário não pode ser excluído, pois já fez um Pruu.");
-//        }
+	public void excluir(Integer id) throws OpomboException {
+		List<Pruu> pruusUsuario = pruuService.listarTodosPruusPorIdUsuario(id);
+		if (!pruusUsuario.isEmpty()) {
+			throw new OpomboException("Usuário com pruus criados não podem ser deletados!");
+		}
 
-        repository.deleteById(id);
-    }
+		repository.deleteById(id);
+	}
 
-    public void validarAdmin(Usuario usuario) throws OpomboException {
-        if (!usuario.getRole().equals(Role.ADMIN)) {
-            throw new OpomboException("Usuário não autorizado. Somente administradores podem bloquear pruus.");
-        }
-    }
+	public void validarAdmin(Usuario usuario) throws OpomboException {
+		if (!usuario.getRole().equals(Role.ADMIN)) {
+			throw new OpomboException("Usuário não autorizado. Somente administradores podem bloquear pruus.");
+		}
+	}
 
-    public List<Usuario> listarComFiltros(UsuarioSeletor seletor) {
-        Specification<Usuario> specification = (root, query, criteriaBuilder) -> {
-            List<Predicate> predicates = new ArrayList<>();
+	public List<Usuario> listarComFiltros(UsuarioSeletor seletor) {
+		Specification<Usuario> specification = (root, query, criteriaBuilder) -> {
+			List<Predicate> predicates = new ArrayList<>();
 
-            if (seletor.getNome() != null && !seletor.getNome().trim().isEmpty()) {
-                predicates.add(criteriaBuilder.like(root.get("nome"), "%" + seletor.getNome() + "%"));
-            }
+			if (seletor.getNome() != null && !seletor.getNome().trim().isEmpty()) {
+				predicates.add(criteriaBuilder.like(root.get("nome"), "%" + seletor.getNome() + "%"));
+			}
 
-            if (seletor.getEmail() != null && !seletor.getEmail().trim().isEmpty()) {
-                predicates.add(criteriaBuilder.like(root.get("email"), "%" + seletor.getEmail() + "%"));
-            }
+			if (seletor.getEmail() != null && !seletor.getEmail().trim().isEmpty()) {
+				predicates.add(criteriaBuilder.like(root.get("email"), "%" + seletor.getEmail() + "%"));
+			}
 
-            return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
-        };
+			return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
+		};
 
-        return repository.findAll(specification);
-    }
+		return repository.findAll(specification);
+	}
 
-    @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        return usuarioRepository.findByEmail(username).orElseThrow(() -> new UsernameNotFoundException("Usuário " + username + " não encontrado"));
-    }
+	@Override
+	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+		return usuarioRepository.findByEmail(username)
+				.orElseThrow(() -> new UsernameNotFoundException("Usuário " + username + " não encontrado"));
+	}
 }

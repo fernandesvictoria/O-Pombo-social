@@ -30,7 +30,6 @@ public class Usuario implements UserDetails {
 	private Integer id;
 
 	@NotBlank(message = "Nome é necessário")
-	@Column(unique = true)
 	@Length(min = 3, max = 200, message = "Nome deve ter entre 3 e 200 caracteres")
 	private String nome;
 

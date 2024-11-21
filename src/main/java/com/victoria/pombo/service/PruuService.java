@@ -49,6 +49,12 @@ public class PruuService {
         }
     }
 
+    public List<Pruu> listarTodosPruusPorIdUsuario(Integer idUsuario){
+		Usuario usuario = usuarioRepository.findById(idUsuario).get();
+		
+		return usuario.getPruus();
+	}
+	
     public void excluir(String id) {
         pruuRepository.deleteById(id);
     }
