@@ -2,6 +2,7 @@ package com.victoria.pombo.controller;
 
 import com.victoria.pombo.auth.AuthService;
 import com.victoria.pombo.exception.OpomboException;
+import com.victoria.pombo.model.dto.UsuarioDTO;
 import com.victoria.pombo.model.entity.Usuario;
 import com.victoria.pombo.model.enums.Role;
 import com.victoria.pombo.service.UsuarioService;
@@ -40,8 +41,10 @@ public class AuthController {
 
     @PostMapping("/novo-usuario")
     @ResponseStatus(code = HttpStatus.CREATED)
-    public void registrarUsuario(@RequestBody Usuario novoUsuario) throws OpomboException {
+    public void registrarUsuario(@RequestBody UsuarioDTO novoUsuarioDTO) throws OpomboException {
 
+    	Usuario novoUsuario = Usuario.fromDTO(novoUsuarioDTO);
+    	
         String senhaCifrada = passwordEncoder.encode(novoUsuario.getSenha());
 
         novoUsuario.setSenha(senhaCifrada);

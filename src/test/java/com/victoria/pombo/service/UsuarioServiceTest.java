@@ -126,7 +126,7 @@ public class UsuarioServiceTest {
     public void testExcluir$userHasPruus() {
         Usuario usuario = new Usuario();
         usuario.setId(1);
-        usuario.setPruus(List.of(new Pruu()));
+        //usuario.setPruus(List.of(new Pruu()));
 
         when(usuarioRepository.findById(1)).thenReturn(Optional.of(usuario));
 

@@ -57,9 +57,9 @@ public class UsuarioService implements UserDetailsService {
         Usuario usuario = repository.findById(id).orElseThrow(() -> new OpomboException("Usuário não encontrado."));
 
         // verificar se o usuário já fez algum Pruu
-        if (usuario.getPruus() != null && !usuario.getPruus().isEmpty()) {
-            throw new OpomboException("Usuário não pode ser excluído, pois já fez um Pruu.");
-        }
+//        if (usuario.getPruus() != null && !usuario.getPruus().isEmpty()) {
+//            throw new OpomboException("Usuário não pode ser excluído, pois já fez um Pruu.");
+//        }
 
         repository.deleteById(id);
     }

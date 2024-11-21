@@ -1,5 +1,6 @@
 package com.victoria.pombo.model.entity;
 
+import com.victoria.pombo.model.dto.UsuarioDTO;
 import com.victoria.pombo.model.enums.Role;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
@@ -70,5 +71,15 @@ public class Usuario implements UserDetails {
 	@Override
 	public String getUsername() {
 		return this.email;
+	}
+
+	public static Usuario fromDTO(UsuarioDTO dto) {
+		Usuario u = new Usuario();
+		u.setCpf(dto.getCpf());
+		u.setEmail(dto.getEmail());
+		u.setNome(dto.getNome());
+		u.setSenha(dto.getSenha());
+		
+		return u;
 	}
 }
