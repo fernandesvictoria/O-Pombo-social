@@ -1,5 +1,4 @@
 package com.victoria.pombo.auth;
-
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 import java.util.List;
@@ -42,13 +41,14 @@ public class SecurityConfig {
 		//Stateless -> não guarda o estado da aplicação (padrão usado no REST)
 		//Stateful -> guarda o estado da aplicação
 		//https://medium.com/exactaworks/stateless-vs-stateful-f596a6b6471d
-		http.csrf(csrf -> csrf.disable())
-		.cors(Customizer.withDefaults())
+		http
+		.cors(cors -> cors.configurationSource(corsConfigurationSource()))
+		.csrf(csrf -> csrf.disable())
 		.authorizeHttpRequests(
 				//Hierarquia de permissões e bloqueios
 				auth -> auth
 				//URLs liberadas
-				.requestMatchers("/auth", "/public").permitAll()
+				.requestMatchers("/auth/*", "/public").permitAll()
 
 				//Todas as demais são bloqueadas
 				.anyRequest().authenticated())
@@ -62,23 +62,20 @@ public class SecurityConfig {
 	@Bean
 	public CorsConfigurationSource corsConfigurationSource() {
 		CorsConfiguration configuration = new CorsConfiguration();
-		configuration.setAllowedOrigins(List.of("http://localhost:4200")); // Substitua pelo URL do seu frontend
-		configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-		//        configuration.setAllowedHeaders(List.of("*"));
-
+		configuration.setAllowedOrigins(List.of("http://localhost:4200")); // Libera a origem do Angular
+		configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS")); // Métodos HTTP permitidos
 		configuration.setAllowedHeaders(List.of("Authorization", "Content-Type", "Access-Control-Allow-Origin", 
-				"Access-Control-Allow-Headers","Access-Control-Expose-Headers",
-				"Accept","Origin","X-Requested-With","Access-Control-Request-Method",	
-				"Access-Control-Request-Headers", "Access-Control-Allow-Credentials",
-				"Content-Length","Content-Encoding","Connection"
+												"Access-Control-Allow-Headers","Access-Control-Expose-Headers",
+												"Accept","Origin","X-Requested-With","Access-Control-Request-Method",	
+												"Access-Control-Request-Headers", "Access-Control-Allow-Credentials",
+												"Content-Length","Content-Encoding","Connection"
 				)); // Cabeçalhos permitidos
 
-		configuration.setExposedHeaders(List.of("Authorization"));
-		configuration.setAllowCredentials(true);
+		configuration.setAllowCredentials(true); // Permite envio de credenciais (cookies, por exemplo)
+		configuration.setAllowedOriginPatterns(List.of("http://localhost:4200/*"));
 
 		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
 		source.registerCorsConfiguration("/**", configuration);
-
 		return source;
 	}
 
