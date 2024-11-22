@@ -1,4 +1,4 @@
-package com.victoria.pombo;
+package com.vilu.pombo;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
