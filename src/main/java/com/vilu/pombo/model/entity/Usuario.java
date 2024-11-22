@@ -22,6 +22,7 @@ public class Usuario implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     @UuidGenerator
+    @Column(nullable = false, unique = true)
     private String uuid;
 
     @NotBlank(message = "É obrigatório informar o nome.")
@@ -74,16 +75,6 @@ public class Usuario implements UserDetails {
     @Override
     public String getUsername() {
         return this.email;
-    }
-
-    public static Usuario fromDTO(UsuarioDTO dto) {
-        Usuario u = new Usuario();
-        u.setCpf(dto.getCpf());
-        u.setEmail(dto.getEmail());
-        u.setNome(dto.getNome());
-        u.setSenha(dto.getSenha());
-
-        return u;
     }
 
 }
