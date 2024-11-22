@@ -55,12 +55,4 @@ public class Pruu {
         bloqueado = false;
     }
 
-    public static PruuDTO toDTO(Pruu pruu, Integer qtdLikes, Integer qtdDenuncias) {
-        if (!pruu.isBloqueado()) {
-            pruu.setTexto("Bloqueado");
-        }
-
-        return new PruuDTO(pruu.getUuid(), pruu.getTexto(), pruu.getUsuario().getUuid(), pruu.getUsuario().getNome(), qtdLikes, qtdDenuncias);
-    }
-
 }

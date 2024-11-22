@@ -28,8 +28,7 @@ public class Denuncia {
     @Column(name = "usuario_id", nullable = false)
     private String usuarioId;
 
-    @Schema(description = "Motivo da Denúncia", example = "SPAM", allowableValues = {"SPAM", "DISCURSO_ODIO",
-            "CONTEUDO_INAPROPRIADO"})
+    @Schema(description = "Motivo da Denúncia", example = "SPAM", allowableValues = {"SPAM", "DISCURSO_ODIO", "CONTEUDO_INAPROPRIADO"})
     @Column(nullable = false)
     private Motivo motivo;
 
@@ -38,8 +37,4 @@ public class Denuncia {
         dataHoraDenuncia = LocalDateTime.now();
     }
 
-    public static DenunciaDTO toDTO(String idPruu, Integer quantidadeDenuncias, Integer qntDenunciasPendentes,
-                                    Integer qntDenunciasAnalisadas) {
-        return new DenunciaDTO(idPruu, quantidadeDenuncias, qntDenunciasPendentes, qntDenunciasAnalisadas);
-    }
 }
