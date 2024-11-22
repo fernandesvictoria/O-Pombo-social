@@ -11,6 +11,7 @@ import com.vilu.pombo.model.seletor.PruuSeletor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Optional;
@@ -26,6 +27,8 @@ public class PruuService {
 
     @Autowired
     private UsuarioRepository usuarioRepository;
+    @Autowired
+    private ImagemService imagemService;
 
     public Pruu inserir(Pruu pruu) throws PomboException {
         Usuario usuario = usuarioRepository.findById(pruu.getUsuario().getUuid()).orElseThrow(() -> new PomboException("Usuário não encontrado."));
@@ -90,5 +93,21 @@ public class PruuService {
         Usuario criador = pruu.getUsuario();
 
         return PruuDTO.builder().usuarioId(criador.getUuid()).nomeUsuario(criador.getNome()).quantidadeLikes(pruu.getQuantidadeLikes()).quantidadeDenuncias(denuncias.size()).texto(pruu.isBloqueado() ? "Este pruu foi bloqueado por violar os termos de uso." : pruu.getTexto()).build();
+    }
+
+    public void salvarImagemPruu(MultipartFile imagem, String idPruu) throws PomboException {
+
+        Pruu pruuComNovaImagem = pruuRepository.findById(idPruu).orElseThrow(() -> new PomboException("Pruu não encontrado"));
+
+        //Converter a imagem para base64
+        String imagemBase64 = imagemService.processarImagem(imagem);
+
+        //Inserir a imagem na coluna imagemEmBase64 do pruu
+
+        //TODO ajustar para fazer o upload
+        pruuComNovaImagem.setImagemEmBase64(imagemBase64);
+
+        //Chamar pruuRepository para persistir a imagem na pruu
+        pruuRepository.save(pruuComNovaImagem);
     }
 }
