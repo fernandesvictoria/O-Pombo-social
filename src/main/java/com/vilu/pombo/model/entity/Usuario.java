@@ -51,7 +51,7 @@ public class Usuario implements UserDetails {
 
     @JsonBackReference
     @OneToMany(mappedBy = "usuario")
-    private List<Pruu> pruss = new ArrayList<>();
+    private List<Pruu> pruus = new ArrayList<>();
 
     @ManyToMany
     @JoinTable(name = "Usuario_like", joinColumns = @JoinColumn(name = "id_usuario"), inverseJoinColumns = @JoinColumn(name = "id_pruu"))
