@@ -51,7 +51,7 @@ public class SecurityConfig {
 				.requestMatchers("/auth/*", "/public").permitAll()
 
 				//Todas as demais são bloqueadas
-				.anyRequest().authenticated())
+				.anyRequest().permitAll())
 		.httpBasic(Customizer.withDefaults())
 		.oauth2ResourceServer(
 				conf -> conf.jwt(Customizer.withDefaults()));
