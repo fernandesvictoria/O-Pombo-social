@@ -55,4 +55,68 @@ public class Pruu {
         bloqueado = false;
     }
 
+	public String getUuid() {
+		return uuid;
+	}
+
+	public void setUuid(String uuid) {
+		this.uuid = uuid;
+	}
+
+	public String getTexto() {
+		return texto;
+	}
+
+	public void setTexto(String texto) {
+		this.texto = texto;
+	}
+
+	public LocalDateTime getDataHoraCriacao() {
+		return dataHoraCriacao;
+	}
+
+	public void setDataHoraCriacao(LocalDateTime dataHoraCriacao) {
+		this.dataHoraCriacao = dataHoraCriacao;
+	}
+
+	public int getQuantidadeLikes() {
+		return quantidadeLikes;
+	}
+
+	public void setQuantidadeLikes(int quantidadeLikes) {
+		this.quantidadeLikes = quantidadeLikes;
+	}
+
+	public Usuario getUsuario() {
+		return usuario;
+	}
+
+	public void setUsuario(Usuario usuario) {
+		this.usuario = usuario;
+	}
+
+	public List<Usuario> getUsuariosQueCurtiram() {
+		return usuariosQueCurtiram;
+	}
+
+	public void setUsuariosQueCurtiram(List<Usuario> usuariosQueCurtiram) {
+		this.usuariosQueCurtiram = usuariosQueCurtiram;
+	}
+
+	public String getImagemEmBase64() {
+		return imagemEmBase64;
+	}
+
+	public void setImagemEmBase64(String imagemEmBase64) {
+		this.imagemEmBase64 = imagemEmBase64;
+	}
+
+	public boolean isBloqueado() {
+		return bloqueado;
+	}
+
+	public void setBloqueado(boolean bloqueado) {
+		this.bloqueado = bloqueado;
+	}
+
 }

@@ -1,17 +1,23 @@
 package com.vilu.pombo.model.dto;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 @Data
-@AllArgsConstructor
-@NoArgsConstructor
 public class DenunciaDTO {
     private String idPruu;
     private Integer quantidadeDenuncias;
+    
+    public DenunciaDTO() {
+		super();
+	}
 
-    public static DenunciaDTOBuilder builder() {
+	public DenunciaDTO(String idPruu, Integer quantidadeDenuncias) {
+		super();
+		this.idPruu = idPruu;
+		this.quantidadeDenuncias = quantidadeDenuncias;
+	}
+
+	public static DenunciaDTOBuilder builder() {
         return new DenunciaDTOBuilder();
     }
 
@@ -32,5 +38,6 @@ public class DenunciaDTO {
         public DenunciaDTO build() {
             return new DenunciaDTO(idPruu, quantidadeDenuncias);
         }
+
     }
 }

@@ -25,9 +25,9 @@ public class DenunciaService {
     public Denuncia denunciar(Denuncia denuncia) throws PomboException {
         boolean usuarioJaDenunciou = denunciaRepository.findAll()
                 .stream()
-                .anyMatch(existingDenuncia ->
-                        Objects.equals(existingDenuncia.getUsuarioId(), denuncia.getUsuarioId()) &&
-                                Objects.equals(existingDenuncia.getPruuId(), denuncia.getPruuId()));
+                .anyMatch(denunciaExistente ->
+                        Objects.equals(denunciaExistente.getUsuarioId(), denuncia.getUsuarioId()) &&
+                                Objects.equals(denunciaExistente.getPruuId(), denuncia.getPruuId()));
 
         if (usuarioJaDenunciou) {
             throw new PomboException("O usuário já realizou uma denúncia para este Pruu.");

@@ -77,4 +77,76 @@ public class Usuario implements UserDetails {
         return this.email;
     }
 
+	public String getUuid() {
+		return uuid;
+	}
+
+	public void setUuid(String uuid) {
+		this.uuid = uuid;
+	}
+
+	public String getNome() {
+		return nome;
+	}
+
+	public void setNome(String nome) {
+		this.nome = nome;
+	}
+
+	public String getEmail() {
+		return email;
+	}
+
+	public void setEmail(String email) {
+		this.email = email;
+	}
+
+	public String getCpf() {
+		return cpf;
+	}
+
+	public void setCpf(String cpf) {
+		this.cpf = cpf;
+	}
+
+	public String getSenha() {
+		return senha;
+	}
+
+	public void setSenha(String senha) {
+		this.senha = senha;
+	}
+
+	public Perfil getPerfil() {
+		return perfil;
+	}
+
+	public void setPerfil(Perfil perfil) {
+		this.perfil = perfil;
+	}
+
+	public boolean isAdmin() {
+		return isAdmin;
+	}
+
+	public void setAdmin(boolean isAdmin) {
+		this.isAdmin = isAdmin;
+	}
+
+	public List<Pruu> getPruus() {
+		return pruus;
+	}
+
+	public void setPruus(List<Pruu> pruus) {
+		this.pruus = pruus;
+	}
+
+	public List<Pruu> getPruusCurtidos() {
+		return pruusCurtidos;
+	}
+
+	public void setPruusCurtidos(List<Pruu> pruusCurtidos) {
+		this.pruusCurtidos = pruusCurtidos;
+	}
+    
 }
