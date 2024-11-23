@@ -100,6 +100,7 @@ public class UsuarioService implements UserDetailsService {
         }
 
         usuarioRepository.save(usuario);
+        pruuRepository.save(pruu);
     }
 
     private boolean verificarUsuarioCurtiu(String idPruu, String idUsuario) {

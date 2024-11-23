@@ -56,7 +56,7 @@ public class Usuario implements UserDetails {
     @ManyToMany
     @JoinTable(name = "Usuario_like", joinColumns = @JoinColumn(name = "id_usuario"), inverseJoinColumns = @JoinColumn(name = "id_pruu"))
     @JsonIgnore
-    private List<Pruu> pruusCurtidos;
+    private List<Pruu> pruusCurtidos = new ArrayList<>();
 
     @Override
     public java.util.Collection<? extends GrantedAuthority> getAuthorities() {
