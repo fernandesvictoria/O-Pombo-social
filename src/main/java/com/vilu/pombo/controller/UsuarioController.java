@@ -25,32 +25,32 @@ public class UsuarioController {
     private UsuarioService usuarioService;
 
     @Operation(summary = "Listar todos os usuários", description = "Retorna uma lista de todos os usuários cadastrados no sistema.", responses = {@ApiResponse(responseCode = "200", description = "Lista de usuários retornada com sucesso")})
-    @GetMapping
+    @GetMapping("/todos")
     public List<Usuario> listarTodos() {
         return usuarioService.listarTodos();
     }
 
     @Operation(summary = "Pesquisar usuário por ID", description = "Busca um usuário específico pelo seu ID.")
-    @GetMapping(path = "/{id}")
+    @GetMapping(path = "/consultar/{id}")
     public ResponseEntity<Usuario> pesquisarPorId(@PathVariable String id) throws PomboException {
         Usuario usuario = usuarioService.pesquisarPorId(id);
         return ResponseEntity.ok(usuario);
     }
 
     @Operation(summary = "Pesquisar com filtro", description = "Retorna uma lista de usuários de acordo com o filtro selecionado.")
-    @PostMapping("/filtro")
+    @PostMapping("/filtrar")
     public List<Usuario> pesquisarComSeletor(@RequestBody UsuarioSeletor seletor) {
         return usuarioService.pesquisarComSeletor(seletor);
     }
 
     @Operation(summary = "Atualizar usuário existente", description = "Atualiza os dados de um usuário existente.")
-    @PutMapping
+    @PutMapping("/alterar")
     public ResponseEntity<Usuario> atualizar(@Valid @RequestBody Usuario usuarioAlterado) throws PomboException {
         return ResponseEntity.ok(usuarioService.atualizar(usuarioAlterado));
     }
 
     @Operation(summary = "Deletar usuário por ID", description = "Remove um usuário específico pelo seu ID.", responses = {@ApiResponse(responseCode = "200", description = "Usuário excluído com sucesso"),})
-    @DeleteMapping(path = "/{id}")
+    @DeleteMapping(path = "/excluir/{id}")
     public ResponseEntity<Void> excluir(@PathVariable String id) throws PomboException {
         usuarioService.excluir(id);
         return ResponseEntity.noContent().build();
@@ -72,6 +72,5 @@ public class UsuarioController {
     public List<Usuario> pesquisarUsuariosQueCurtiram(@PathVariable String idPruu) throws PomboException {
         return usuarioService.pesquisarUsuariosQueCurtiram(idPruu);
     }
-
 
 }
