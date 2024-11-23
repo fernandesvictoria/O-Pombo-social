@@ -77,76 +77,85 @@ public class Usuario implements UserDetails {
         return this.email;
     }
 
-	public String getUuid() {
-		return uuid;
-	}
+    public String getUuid() {
+        return uuid;
+    }
 
-	public void setUuid(String uuid) {
-		this.uuid = uuid;
-	}
+    public void setUuid(String uuid) {
+        this.uuid = uuid;
+    }
 
-	public String getNome() {
-		return nome;
-	}
+    public String getNome() {
+        return nome;
+    }
 
-	public void setNome(String nome) {
-		this.nome = nome;
-	}
+    public void setNome(String nome) {
+        this.nome = nome;
+    }
 
-	public String getEmail() {
-		return email;
-	}
+    public String getEmail() {
+        return email;
+    }
 
-	public void setEmail(String email) {
-		this.email = email;
-	}
+    public void setEmail(String email) {
+        this.email = email;
+    }
 
-	public String getCpf() {
-		return cpf;
-	}
+    public String getCpf() {
+        return cpf;
+    }
 
-	public void setCpf(String cpf) {
-		this.cpf = cpf;
-	}
+    public void setCpf(String cpf) {
+        this.cpf = cpf;
+    }
 
-	public String getSenha() {
-		return senha;
-	}
+    public String getSenha() {
+        return senha;
+    }
 
-	public void setSenha(String senha) {
-		this.senha = senha;
-	}
+    public void setSenha(String senha) {
+        this.senha = senha;
+    }
 
-	public Perfil getPerfil() {
-		return perfil;
-	}
+    public Perfil getPerfil() {
+        return perfil;
+    }
 
-	public void setPerfil(Perfil perfil) {
-		this.perfil = perfil;
-	}
+    public void setPerfil(Perfil perfil) {
+        this.perfil = perfil;
+    }
 
-	public boolean isAdmin() {
-		return isAdmin;
-	}
+    public boolean isAdmin() {
+        return isAdmin;
+    }
 
-	public void setAdmin(boolean isAdmin) {
-		this.isAdmin = isAdmin;
-	}
+    public void setAdmin(boolean isAdmin) {
+        this.isAdmin = isAdmin;
+    }
 
-	public List<Pruu> getPruus() {
-		return pruus;
-	}
+    public List<Pruu> getPruus() {
+        return pruus;
+    }
 
-	public void setPruus(List<Pruu> pruus) {
-		this.pruus = pruus;
-	}
+    public void setPruus(List<Pruu> pruus) {
+        this.pruus = pruus;
+    }
 
-	public List<Pruu> getPruusCurtidos() {
-		return pruusCurtidos;
-	}
+    public List<Pruu> getPruusCurtidos() {
+        return pruusCurtidos;
+    }
 
-	public void setPruusCurtidos(List<Pruu> pruusCurtidos) {
-		this.pruusCurtidos = pruusCurtidos;
-	}
-    
+    public void setPruusCurtidos(List<Pruu> pruusCurtidos) {
+        this.pruusCurtidos = pruusCurtidos;
+    }
+
+    public static Usuario fromDTO(UsuarioDTO dto) {
+        Usuario u = new Usuario();
+        u.setCpf(dto.getCpf());
+        u.setEmail(dto.getEmail());
+        u.setNome(dto.getNome());
+        u.setSenha(dto.getSenha());
+
+        return u;
+    }
 }

@@ -1,5 +1,6 @@
 package com.vilu.pombo.controller;
 
+import com.vilu.pombo.auth.AuthService;
 import com.vilu.pombo.exeption.PomboException;
 import com.vilu.pombo.model.dto.PruuDTO;
 import com.vilu.pombo.model.entity.Pruu;
@@ -29,6 +30,8 @@ public class PruuController {
 
     @Autowired
     private PruuService pruuService;
+    @Autowired
+    private AuthService authService;
 
     @Operation(summary = "Upload de imagem para Pruu", requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Arquivo de imagem a ser enviado", required = true, content = @Content(mediaType = "multipart/form-data", schema = @Schema(type = "string", format = "binary"))), description = "Realiza o upload de uma imagem associada a um pruu.")
     @PostMapping("/{id}/upload")

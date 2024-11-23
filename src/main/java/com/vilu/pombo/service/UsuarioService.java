@@ -30,9 +30,11 @@ public class UsuarioService implements UserDetailsService {
     @Autowired
     private PruuService pruuService;
 
-    public Usuario inserir(Usuario novoUsuario) throws PomboException {
-        verificarUsuarioExiste(novoUsuario);
-        return usuarioRepository.save(novoUsuario);
+    public void inserir(Usuario usuario) throws PomboException {
+        if (usuarioRepository.existsByCpf(usuario.getCpf())) {
+            throw new PomboException("O CPF informado já foi cadastrado no sistema.");
+        }
+        usuarioRepository.save(usuario);
     }
 
     public void verificarUsuarioExiste(Usuario usuario) throws PomboException {
@@ -101,7 +103,7 @@ public class UsuarioService implements UserDetailsService {
     }
 
     private boolean verificarUsuarioCurtiu(String idPruu, String idUsuario) {
-        return pruuRepository.existsByIdAndUsuariosCurtiram_Id(idPruu, idUsuario);
+        return pruuRepository.existsByUuidAndUsuariosQueCurtiram_Uuid(idPruu, idUsuario);
     }
 
     public List<Usuario> pesquisarUsuariosQueCurtiram(String idPruu) throws PomboException {
