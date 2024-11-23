@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
-@RequestMapping(path = "/pruus")
+@RequestMapping(path = "/pruu")
 @CrossOrigin(origins = {"http://localhost:4200"}, maxAge = 3600)
 public class PruuController {
 
