@@ -1,43 +1,21 @@
 package com.vilu.pombo.model.dto;
 
+import com.vilu.pombo.model.enums.Motivo;
+import com.vilu.pombo.model.enums.StatusDenuncia;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 
+import java.time.LocalDateTime;
+
 @Data
+@AllArgsConstructor
 public class DenunciaDTO {
-    private String idPruu;
-    private Integer quantidadeDenuncias;
-    
-    public DenunciaDTO() {
-		super();
-	}
-
-	public DenunciaDTO(String idPruu, Integer quantidadeDenuncias) {
-		super();
-		this.idPruu = idPruu;
-		this.quantidadeDenuncias = quantidadeDenuncias;
-	}
-
-	public static DenunciaDTOBuilder builder() {
-        return new DenunciaDTOBuilder();
-    }
-
-    public static class DenunciaDTOBuilder {
-        private String idPruu;
-        private Integer quantidadeDenuncias;
-
-        public DenunciaDTOBuilder idPruu(String idPruu) {
-            this.idPruu = idPruu;
-            return this;
-        }
-
-        public DenunciaDTOBuilder quantidadeDenuncias(Integer quantidadeDenuncias) {
-            this.quantidadeDenuncias = quantidadeDenuncias;
-            return this;
-        }
-
-        public DenunciaDTO build() {
-            return new DenunciaDTO(idPruu, quantidadeDenuncias);
-        }
-
-    }
+    private String idDenuncia;
+    private String idUsuario;
+    private String nomeUsuario;
+    private String emailUsuario;
+    private String URLfotoDoUsuario;
+    private Motivo motivo;
+    private StatusDenuncia status;
+    private LocalDateTime criadoEm;
 }

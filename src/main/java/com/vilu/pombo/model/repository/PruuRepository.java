@@ -7,6 +7,4 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface PruuRepository extends JpaRepository<Pruu, String>, JpaSpecificationExecutor<Pruu> {
-    boolean existsByUuidAndUsuariosQueCurtiram_Uuid(String pruuUuid, String usuarioUuid);
-
 }

@@ -1,86 +1,53 @@
 package com.vilu.pombo.model.repository;
 
-import com.vilu.pombo.factory.PruuFactory;
-import com.vilu.pombo.factory.UsuarioFactory;
 import com.vilu.pombo.model.entity.Pruu;
-import com.vilu.pombo.model.entity.Usuario;
-import org.junit.jupiter.api.BeforeEach;
+import com.vilu.pombo.model.mock.PruuMockFactory;
+import jakarta.validation.ConstraintViolationException;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 
-import java.util.Optional;
-
-import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
 @ActiveProfiles("test")
-class PruuRepositoryTest {
+public class PruuRepositoryTest {
 
     @Autowired
     private PruuRepository pruuRepository;
 
-    @Autowired
-    private UsuarioRepository usuarioRepository;
+    @Test
+    @DisplayName("Não deve ser possível cadastrar um Pruu com texto inválido")
+    public void testInsert$TextoMaisDe500Caracteres() {
+        String texto = "a".repeat(301);
+        Pruu pruu = PruuMockFactory.criarPruuMock();
+        pruu.setTexto(texto);
 
-    private Usuario usuario;
-
-    @BeforeEach
-    void setUp() {
-        usuario = usuarioRepository.save(UsuarioFactory.criarUsuarioMaxVerstappen());
+        assertThatThrownBy(() -> pruuRepository.saveAndFlush(pruu))
+                .isInstanceOf(ConstraintViolationException.class);
     }
 
     @Test
-    void deveSalvarPruuComSucesso() {
-        Pruu pruu = PruuFactory.criarPruuPadrao();
+    @DisplayName("Não deve ser possível cadastrar um Pruu com URL de imagem inválida")
+    public void testInsert$ImagemURLInvalida() {
+        Pruu pruu = PruuMockFactory.criarPruuMock();
+        pruu.setImagem("imagem_invalida");
 
-        Pruu pruuSalvo = pruuRepository.save(pruu);
-
-        assertNotNull(pruuSalvo.getUuid());
-        assertEquals(usuario.getUuid(), pruuSalvo.getUsuario().getUuid());
-        assertEquals("Max Verstappen", pruuSalvo.getUsuario().getNome());
-        assertEquals("Texto do Pruu", pruuSalvo.getTexto());
-        assertFalse(pruuSalvo.isBloqueado());
+        assertThatThrownBy(() -> pruuRepository.saveAndFlush(pruu))
+                .isInstanceOf(ConstraintViolationException.class);
     }
 
     @Test
-    void deveEncontrarPruuPorUuid() {
-        Pruu pruu = PruuFactory.criarPruuPadrao();
-        pruuRepository.save(pruu);
+    @DisplayName("Não deve ser possível cadastrar um Pruu com texto vazio")
+    public void testInsert$PruuComTextoVazio() {
+        Pruu pruu = PruuMockFactory.criarPruuMock();
+        pruu.setTexto("");
 
-        Optional<Pruu> pruuEncontrado = pruuRepository.findById(pruu.getUuid());
-
-        assertTrue(pruuEncontrado.isPresent());
-        assertEquals(pruu.getUuid(), pruuEncontrado.get().getUuid());
+        assertThatThrownBy(() -> pruuRepository.saveAndFlush(pruu))
+                .isInstanceOf(ConstraintViolationException.class);
     }
 
-    @Test
-    void deveRetornarVazioAoProcurarPruuPorUuidInexistente() {
-        Optional<Pruu> pruuEncontrado = pruuRepository.findById("uuidInexistente");
-
-        assertFalse(pruuEncontrado.isPresent());
-    }
-
-    @Test
-    void deveExcluirPruu() {
-        Pruu pruu = PruuFactory.criarPruuPadrao();
-        Pruu pruuSalvo = pruuRepository.save(pruu);
-
-        pruuRepository.delete(pruuSalvo);
-
-        Optional<Pruu> pruuExcluido = pruuRepository.findById(pruuSalvo.getUuid());
-        assertFalse(pruuExcluido.isPresent());
-    }
-
-    @Test
-    void deveAtualizarQuantidadeLikesDoPruu() {
-        Pruu pruu = PruuFactory.criarPruuPadrao();
-        Pruu pruuSalvo = pruuRepository.save(pruu);
-
-        pruuSalvo.setQuantidadeLikes(10);
-        Pruu pruuAtualizado = pruuRepository.save(pruuSalvo);
-
-        assertEquals(10, pruuAtualizado.getQuantidadeLikes());
-    }
 }

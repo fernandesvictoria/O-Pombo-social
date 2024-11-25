@@ -39,7 +39,7 @@ public class JwtService {
                 .expiresAt(now.plusSeconds(dezHorasEmSegundos)) // expiração do token, em segundos.
                 .subject(authentication.getName())              // nome do usuário
                 .claim("roles", roles)                           // perfis ou permissões (roles)
-                .claim("idUsuario", usuarioAutenticado.getUuid()) // mais propriedades adicionais no token
+                .claim("idUsuario", usuarioAutenticado.getId()) // mais propriedades adicionais no token
                 .build();
 
         return jwtEncoder.encode(

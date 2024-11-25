@@ -4,6 +4,7 @@ import com.vilu.pombo.exeption.PomboException;
 import com.vilu.pombo.model.entity.Usuario;
 import com.vilu.pombo.model.repository.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -34,11 +35,11 @@ public class AuthService {
             Jwt jwt = (Jwt) principal;
             String login = jwt.getClaim("sub");
 
-            usuarioAutenticado = usuarioRepository.findByEmail(login).orElseThrow(() -> new PomboException("Usuário não encontrado"));
+            usuarioAutenticado = usuarioRepository.findByEmail(login).orElseThrow(() -> new PomboException("Usuário não encontrado", HttpStatus.BAD_REQUEST));
         }
 
         if (usuarioAutenticado == null) {
-            throw new PomboException("Usuário não encontrado");
+            throw new PomboException("Usuário não encontrado", HttpStatus.BAD_REQUEST);
         }
 
         return usuarioAutenticado;

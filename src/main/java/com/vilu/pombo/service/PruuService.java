@@ -1,8 +1,6 @@
 package com.vilu.pombo.service;
 
 import com.vilu.pombo.exeption.PomboException;
-import com.vilu.pombo.model.dto.PruuDTO;
-import com.vilu.pombo.model.entity.Denuncia;
 import com.vilu.pombo.model.entity.Pruu;
 import com.vilu.pombo.model.entity.Usuario;
 import com.vilu.pombo.model.repository.PruuRepository;
@@ -10,11 +8,14 @@ import com.vilu.pombo.model.repository.UsuarioRepository;
 import com.vilu.pombo.model.seletor.PruuSeletor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class PruuService {
@@ -23,91 +24,99 @@ public class PruuService {
     private PruuRepository pruuRepository;
 
     @Autowired
-    private DenunciaService denunciaService;
-
-    @Autowired
     private UsuarioRepository usuarioRepository;
-    @Autowired
-    private ImagemService imagemService;
 
-    public Pruu inserir(Pruu pruu) throws PomboException {
-        Usuario usuario = usuarioRepository.findById(pruu.getUsuario().getUuid()).orElseThrow(() -> new PomboException("Usuário não encontrado."));
-        usuario.getPruus().add(pruu);
+    public Pruu cadastrar(Pruu pruu) throws PomboException {
+        Optional<Usuario> autor = usuarioRepository.findById(pruu.getUsuario().getId());
+        pruu.setUsuario(autor.orElseThrow(() -> new PomboException("Usuário não encontrado.", HttpStatus.BAD_REQUEST)));
         return pruuRepository.save(pruu);
     }
 
-    public List<Pruu> listarTodos() {
-        return pruuRepository.findAll();
-    }
+    public void toggleCurtida(String idPruu, String idUsuario) throws PomboException {
+        Pruu pruu = pruuRepository.findById(idPruu).orElseThrow(() -> new PomboException("O pruu selecionado não foi encontrado.", HttpStatus.BAD_REQUEST));
+        Usuario usuario = usuarioRepository.findById(idUsuario).orElseThrow(() -> new PomboException("Usuário não encontrado.", HttpStatus.BAD_REQUEST));
 
-    public Optional<Pruu> pesquisarPorId(String id) {
-        return pruuRepository.findById(id);
-    }
+        List<Usuario> usuariosQueCurtiram = pruu.getUsuariosQueCurtiram();
 
-    public List<Pruu> pesquisarComSeletor(PruuSeletor seletor) {
-        if (seletor.hasPaginacao()) {
-            PageRequest pagina = PageRequest.of(seletor.getPagina() - 1, seletor.getLimite());
-            return pruuRepository.findAll(seletor, pagina).toList();
-        }
-        return pruuRepository.findAll();
-    }
-
-    public List<Pruu> listarPruusPorIdUsuario(String idUsuario) throws PomboException {
-        return usuarioRepository.findById(idUsuario).map(Usuario::getPruus).orElseThrow(() -> new PomboException("Usuário não encontrado."));
-    }
-
-    public Pruu atualizar(Pruu pruu) throws PomboException {
-        if (!pruuRepository.existsById(pruu.getUuid())) {
-            throw new PomboException("Pruu não encontrado.");
-        }
-        return pruuRepository.save(pruu);
-    }
-
-    public void excluir(String id) throws PomboException {
-        Pruu pruu = pruuRepository.findById(id).orElseThrow(() -> new PomboException("Pruu não encontrado."));
-        pruuRepository.delete(pruu);
-    }
-
-    public Pruu bloquear(String idPruu, String idUsuario) throws PomboException {
-        Usuario usuario = usuarioRepository.findById(idUsuario).orElseThrow(() -> new PomboException("Usuário não encontrado."));
-
-        if (!usuario.isAdmin()) {
-            throw new PomboException("Usuário não é administrador.");
+        if (usuariosQueCurtiram.contains(usuario)) {
+            usuariosQueCurtiram.remove(usuario);
+            pruu.setQuantidadeCurtidas(pruu.getQuantidadeCurtidas() - 1);
+        } else {
+            usuariosQueCurtiram.add(usuario);
+            pruu.setQuantidadeCurtidas(pruu.getQuantidadeCurtidas() + 1);
         }
 
-        List<Denuncia> denuncias = denunciaService.listarDenunciasPorIdPruu(idPruu);
-        if (denuncias.isEmpty()) {
-            throw new PomboException("Nenhuma denúncia encontrada para este Pruu.");
-        }
+        pruu.setUsuariosQueCurtiram(usuariosQueCurtiram);
+        pruuRepository.save(pruu);
+    }
 
-        Pruu pruu = pruuRepository.findById(idPruu).orElseThrow(() -> new PomboException("Pruu não encontrado."));
+    // uma mensagem deve ser excluída apenas logicamente, permitido apenas para usuário ADMIN ou para USUARIO que criou a postagem
+    public void excluir(String idPruu, String idUsuario) throws PomboException {
+        Pruu pruu = pruuRepository.findById(idPruu).orElseThrow(() -> new PomboException("O pruu selecionado não foi encontrado.", HttpStatus.BAD_REQUEST));
+        Usuario usuario = usuarioRepository.findById(idUsuario).orElseThrow(() -> new PomboException("Usuário não encontrado.", HttpStatus.NOT_FOUND));
+
+        boolean isAdmin = usuario.isAdmin();
+        boolean isOwner = pruu.getUsuario().getId().equals(usuario.getId());
+
+        if (!isAdmin && !isOwner) {
+            throw new PomboException("Você não é o Pombo dono deste Pruu, portanto não pode excluí-lo.", HttpStatus.FORBIDDEN);
+        }
 
         pruu.setBloqueado(true);
-        return pruuRepository.save(pruu);
+        pruuRepository.save(pruu);
     }
 
-    public PruuDTO gerarRelatorioPruu(String idPruu) throws PomboException {
-        Pruu pruu = pruuRepository.findById(idPruu).orElseThrow(() -> new PomboException("Pruu não encontrado."));
+    public List<Pruu> pesquisarTodos(PruuSeletor seletor) {
+        List<Pruu> pruus;
 
-        List<Denuncia> denuncias = denunciaService.listarDenunciasPorIdPruu(pruu.getUuid());
-        Usuario criador = pruu.getUsuario();
+        if (seletor.temPaginacao()) {
+            int pageNumber = seletor.getPagina();
+            int pageSize = Math.min(seletor.getLimite(), 100);
+            PageRequest page = PageRequest.of(pageNumber - 1, pageSize, Sort.by(Sort.Direction.DESC, "criadoEm"));
+            pruus = new ArrayList<>(pruuRepository.findAll(seletor, page).toList());
+        } else {
+            PageRequest page = PageRequest.of(0, 100, Sort.by(Sort.Direction.DESC, "criadoEm"));
+            pruus = new ArrayList<>(pruuRepository.findAll(seletor, page).toList());
+        }
 
-        return PruuDTO.builder().usuarioId(criador.getUuid()).nomeUsuario(criador.getNome()).quantidadeLikes(pruu.getQuantidadeLikes()).quantidadeDenuncias(denuncias.size()).texto(pruu.isBloqueado() ? "Este pruu foi bloqueado por violar os termos de uso." : pruu.getTexto()).build();
+        return pruus;
     }
 
-    public void salvarImagemPruu(MultipartFile imagem, String idPruu) throws PomboException {
+    public Pruu pesquisarPorId(String id) throws PomboException {
+        Pruu pruu = pruuRepository.findById(id).orElseThrow(() -> new PomboException("O pruu buscado não foi encontrado.", HttpStatus.BAD_REQUEST));
 
-        Pruu pruuComNovaImagem = pruuRepository.findById(idPruu).orElseThrow(() -> new PomboException("Pruu não encontrado"));
+        if (pruu.isBloqueado()) {
+            throw new PomboException("Este pruu foi capturado e não está mais disponível.", HttpStatus.BAD_REQUEST);
+        }
 
-        //Converter a imagem para base64
-        String imagemBase64 = imagemService.processarImagem(imagem);
-
-        //Inserir a imagem na coluna imagemEmBase64 do pruu
-
-        //TODO ajustar para fazer o upload
-        pruuComNovaImagem.setImagemEmBase64(imagemBase64);
-
-        //Chamar pruuRepository para persistir a imagem na pruu
-        pruuRepository.save(pruuComNovaImagem);
+        return pruu;
     }
+
+    public List<Pruu> pesquisarComFiltros(PruuSeletor seletor) throws PomboException {
+        List<Pruu> pruusFiltrados;
+
+        if (seletor.temPaginacao()) {
+            int pageNumber = seletor.getPagina();
+            int pageSize = seletor.getLimite();
+
+            PageRequest page = PageRequest.of(pageNumber - 1, pageSize, Sort.by(Sort.Direction.DESC, "criadoEm"));
+            pruusFiltrados = new ArrayList<>(pruuRepository.findAll(seletor, page).toList());
+        } else {
+            pruusFiltrados = new ArrayList<>(pruuRepository.findAll(seletor, Sort.by(Sort.Direction.DESC, "criadoEm")));
+        }
+
+        pruusFiltrados = pruusFiltrados.stream()
+                .filter(pub -> !pub.isBloqueado())
+                .collect(Collectors.toList());
+
+        if (seletor.isTemCurtida()) {
+            pruusFiltrados = pruusFiltrados.stream()
+                    .filter(pub -> pub.getUsuariosQueCurtiram().stream()
+                            .anyMatch(user -> user.getId().equals(seletor.getIdUsuario())))
+                    .collect(Collectors.toList());
+        }
+
+        return pruusFiltrados;
+    }
+
 }

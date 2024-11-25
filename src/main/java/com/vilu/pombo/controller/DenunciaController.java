@@ -1,8 +1,9 @@
 package com.vilu.pombo.controller;
 
 import com.vilu.pombo.exeption.PomboException;
-import com.vilu.pombo.model.dto.DenunciaDTO;
 import com.vilu.pombo.model.entity.Denuncia;
+import com.vilu.pombo.model.enums.StatusDenuncia;
+import com.vilu.pombo.model.seletor.DenunciaSeletor;
 import com.vilu.pombo.service.DenunciaService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -12,7 +13,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping(path = "/denuncias")
@@ -23,29 +23,36 @@ public class DenunciaController {
     private DenunciaService denunciaService;
 
     @Operation(summary = "Inserir nova denuncia", description = "Cria uma nova denuncia", responses = {@ApiResponse(responseCode = "200", description = "Denuncia registrada com sucesso"),})
-    @PostMapping
-    public ResponseEntity<Denuncia> denunciar(@Valid @RequestBody Denuncia denuncia) throws PomboException {
-        return ResponseEntity.ok(denunciaService.denunciar(denuncia));
+    @PostMapping("/cadastrar")
+    public ResponseEntity<Denuncia> cadastrar(@Valid @RequestBody Denuncia denuncia) throws PomboException {
+        return ResponseEntity.ok(denunciaService.cadastrar(denuncia));
     }
 
-    @Operation(summary = "Pesquisar todas denuncias", description = "Retorna lista de denuncias para o admin.", responses = {@ApiResponse(responseCode = "200", description = "Lista de denuncias retornada com sucesso."), @ApiResponse(responseCode = "401", description = "Usuário não autorizado")})
-    @GetMapping
-    public List<Denuncia> listarDenuncias() {
-        return denunciaService.listarDenuncias();
+    @Operation(summary = "Atualizar status da denuncia", description = "Atualiza o status da denuncia", responses = {@ApiResponse(responseCode = "200", description = "Status da denuncia atualizado com sucesso"), @ApiResponse(responseCode = "400", description = "Denuncia não encontrada")})
+    @PutMapping("/atualizar/{idDenuncia}")
+    public ResponseEntity<Void> atualizar(@PathVariable String idDenuncia, @RequestBody StatusDenuncia statusDenuncia) throws PomboException {
+        denunciaService.atualizar(idDenuncia, statusDenuncia);
+        return ResponseEntity.ok().build();
     }
 
-    @Operation(summary = "Pesquisar denuncia por id", description = "Retorna denuncia especifica para o admin.", responses = {@ApiResponse(responseCode = "200", description = "Denuncia retornada com sucesso."), @ApiResponse(responseCode = "400", description = "Denuncia não encontrada."), @ApiResponse(responseCode = "401", description = "Usuário não autorizado.")})
+    @Operation(summary = "Excluir denuncia", description = "Exclui a denuncia", responses = {@ApiResponse(responseCode = "200", description = "Denuncia excluida com sucesso"), @ApiResponse(responseCode = "400", description = "Denuncia não encontrada")})
+    @DeleteMapping("/excluir/{idDenuncia}")
+    public ResponseEntity<Void> excluir(@PathVariable String idDenuncia, @RequestBody String idUsuario) throws PomboException {
+        denunciaService.excluir(idDenuncia, idUsuario);
+        return ResponseEntity.ok().build();
+    }
+
+    @Operation(summary = "Pesquisar uma denúncia pelo id", description = "Retorna denuncia especifica para o admin.", responses = {@ApiResponse(responseCode = "200", description = "Denuncia retornada com sucesso."), @ApiResponse(responseCode = "400", description = "Denuncia não encontrada."), @ApiResponse(responseCode = "401", description = "Usuário não autorizado.")})
     @GetMapping("/{id}")
-    public ResponseEntity<Optional<Denuncia>> pesquisarDenunciaPorId(@PathVariable String id) throws PomboException {
-        Optional<Denuncia> denuncia = denunciaService.pesquisarDenunciaPorId(id);
+    public ResponseEntity<Denuncia> pesquisarPorId(@PathVariable String id) throws PomboException {
+        Denuncia denuncia = denunciaService.pesquisarPorId(id);
         return ResponseEntity.ok(denuncia);
     }
 
-    @Operation(summary = "Retorna relatório de denuncia", description = "Retorna relatório de denuncia de um pruu.", responses = {@ApiResponse(responseCode = "200", description = "Relatório retornado com sucesso."), @ApiResponse(responseCode = "400", description = "Denuncia não encontrada."), @ApiResponse(responseCode = "401", description = "Usuário não autorizado.")})
-    @GetMapping(path = "/relatorio/{idPruu}")
-    public ResponseEntity<DenunciaDTO> pesquisarRelatorioPruu(@PathVariable String idPruu) throws PomboException {
-        DenunciaDTO dto = denunciaService.gerarRelatorioPorIdPruu(idPruu);
-        return ResponseEntity.ok(dto);
+    @Operation(summary = "Pesquisar com filtro", description = "Retorna uma lista de denúncias de acordo com o filtro selecionado.")
+    @PostMapping("/filtrar")
+    public List<Denuncia> pesquisarComFiltros(@RequestBody DenunciaSeletor seletor) {
+        return denunciaService.pesquisarComFiltros(seletor);
     }
 
 }

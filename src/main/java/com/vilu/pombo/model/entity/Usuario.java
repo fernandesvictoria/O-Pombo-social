@@ -5,43 +5,54 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.vilu.pombo.model.dto.UsuarioDTO;
 import com.vilu.pombo.model.enums.Perfil;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.*;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.Data;
+import lombok.ToString;
+import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UuidGenerator;
+import org.hibernate.validator.constraints.URL;
+import org.hibernate.validator.constraints.br.CPF;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 @Entity
-@Table
 @Data
 public class Usuario implements UserDetails {
+
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     @UuidGenerator
-    @Column(nullable = false, unique = true)
-    private String uuid;
+    private String id;
 
-    @NotBlank(message = "É obrigatório informar o nome.")
-    @Size(min = 3, max = 200, message = "O nome deve ter entre 3 e 200 caracteres.")
+    @NotBlank(message = "O nome não pode estar em branco.")
+    @Size(max = 200, message = "O nome deve ter entre 3 e 200 caracteres.")
     private String nome;
 
-    @NotBlank
-    @Email(message = "O email deve ser válido.")
+    @NotBlank(message = "O email não pode estar em branco.")
+    @Email(message = "O email informado deve ser válido.")
     @Column(unique = true)
     private String email;
 
-    @NotBlank(message = "É obrigatório informar o CPF.")
-    @Pattern(regexp = "\\d{11}", message = "CPF deve conter exatamente 11 dígitos.")
-    @Column(unique = true, nullable = false)
+    @NotBlank(message = "O CPF não pode estar em branco.")
+    @CPF(message = "O CPF informado deve ser válido.")
+    @Column(unique = true)
     private String cpf;
 
     @NotBlank(message = "A senha não deve estar em branco.")
     @Size(max = 500)
     private String senha;
+
+    @URL(message = "A URL da foto de perfil deve ser válida.")
+    private String fotoDePerfil;
 
     @Enumerated(EnumType.STRING)
     private Perfil perfil = Perfil.USUARIO;
@@ -49,27 +60,24 @@ public class Usuario implements UserDetails {
     @NotNull(message = "É obrigatório informar se o usuário é administrador.")
     private boolean isAdmin;
 
-    @JsonBackReference
+    @ToString.Exclude
     @OneToMany(mappedBy = "usuario")
+    @JsonBackReference(value = "usuario-pruus")
     private List<Pruu> pruus = new ArrayList<>();
 
-    @ManyToMany
-    @JoinTable(name = "Usuario_like", joinColumns = @JoinColumn(name = "id_usuario"), inverseJoinColumns = @JoinColumn(name = "id_pruu"))
-    @JsonIgnore
-    private List<Pruu> pruusCurtidos;
+    @ToString.Exclude
+    @OneToMany(mappedBy = "usuario")
+    @JsonBackReference(value = "usuario-denuncias")
+    private List<Denuncia> denuncias = new ArrayList<>();
+
+    @CreationTimestamp
+    private LocalDateTime criadoEm;
 
     @Override
-    public java.util.Collection<? extends GrantedAuthority> getAuthorities() {
-        List<GrantedAuthority> list = new ArrayList<GrantedAuthority>();
-
-        list.add(new SimpleGrantedAuthority(perfil.toString()));
-
-        return list;
-    }
-
-    @Override
-    public String getPassword() {
-        return this.senha;
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        List<GrantedAuthority> authorities = new ArrayList<>();
+        authorities.add(new SimpleGrantedAuthority(perfil.toString()));
+        return authorities;
     }
 
     @Override
@@ -77,85 +85,13 @@ public class Usuario implements UserDetails {
         return this.email;
     }
 
-    public String getUuid() {
-        return uuid;
-    }
-
-    public void setUuid(String uuid) {
-        this.uuid = uuid;
-    }
-
-    public String getNome() {
-        return nome;
-    }
-
-    public void setNome(String nome) {
-        this.nome = nome;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public String getCpf() {
-        return cpf;
-    }
-
-    public void setCpf(String cpf) {
-        this.cpf = cpf;
-    }
-
-    public String getSenha() {
-        return senha;
-    }
-
-    public void setSenha(String senha) {
-        this.senha = senha;
-    }
-
-    public Perfil getPerfil() {
-        return perfil;
-    }
-
-    public void setPerfil(Perfil perfil) {
-        this.perfil = perfil;
+    @Override
+    public String getPassword() {
+        return this.senha;
     }
 
     public boolean isAdmin() {
-        return isAdmin;
+        return this.perfil == Perfil.ADMINISTRADOR;
     }
 
-    public void setAdmin(boolean isAdmin) {
-        this.isAdmin = isAdmin;
-    }
-
-    public List<Pruu> getPruus() {
-        return pruus;
-    }
-
-    public void setPruus(List<Pruu> pruus) {
-        this.pruus = pruus;
-    }
-
-    public List<Pruu> getPruusCurtidos() {
-        return pruusCurtidos;
-    }
-
-    public void setPruusCurtidos(List<Pruu> pruusCurtidos) {
-        this.pruusCurtidos = pruusCurtidos;
-    }
-
-    public static Usuario fromDTO(UsuarioDTO dto) {
-        Usuario u = new Usuario();
-        u.setCpf(dto.getCpf());
-        u.setEmail(dto.getEmail());
-        u.setNome(dto.getNome());
-        u.setSenha(dto.getSenha());
-
-        return u;
-    }
 }
